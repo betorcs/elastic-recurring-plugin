@@ -14,6 +14,32 @@ To installing plugin in elasticsearch, run this command in your elasticsearch se
 
 ```$bin/plugin install recurring-plugin-0.1.zip```
 
+## Recurring Type
+Mapper type called _recurring_ to support recurrents dates. The declaration looks as follows:
+```
+{
+    "event" : {
+        "properties" : {
+            "recurrent_date" : {
+                "type" : "recurring"
+            }
+        }
+    }
+}
+```
+The above mapping defines a _recurring_, which accepts the follow format:
+```
+{
+    "event" : {
+        "recurrent_date" : {
+            "start_date" : "2016-12-25",
+            "end_date" : null,
+            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25"
+        }
+    }
+}
+```
+
 ## Native scripts
 
 ### nextOccurrence

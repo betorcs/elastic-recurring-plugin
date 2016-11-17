@@ -55,6 +55,9 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         indexBuilders.add(client().prepareIndex("test", "type", "3")
                 .setSource(createDoc("Halloween Party", "2012-10-31", null, "RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31;WKST=SU")));
 
+        indexBuilders.add(client().prepareIndex("test", "type", "4")
+                .setSource(createDoc("Revisão Mensal Cruze", "2016-02-10", null, "RRULE:FREQ=MONTHLY;BYMONTHDAY=10;COUNT=5;WKST=SU")));
+
         indexRandom(true, indexBuilders);
 
 

@@ -59,18 +59,6 @@ public final class Recurring {
         this.rrule = rrule;
     }
 
-    public final String dtstart() {
-        return startDate;
-    }
-
-    public final String dtend() {
-        return endDate;
-    }
-
-    public final String rrule() {
-        return rrule;
-    }
-
     public boolean hasOccurrencesAt(LocalDate date) throws ParseException {
         LocalDate start = date.minusDays(1);
         LocalDate end = date.plusDays(1);
@@ -80,7 +68,7 @@ public final class Recurring {
     }
 
     public boolean occurBetween(LocalDate start, LocalDate end) throws ParseException {
-        LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(dtstart()), false);
+        LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(getStartDate()), false);
         it.advanceTo(start);
         if (it.hasNext()) {
             LocalDate nextOccurrence = it.next();
@@ -90,7 +78,8 @@ public final class Recurring {
     }
 
     public LocalDate getNextOccurrence() throws ParseException {
-        LocalDate start = new LocalDate(dtstart());
+        LocalDate start = new LocalDate(getStartDate())
+                .minusDays(1);
         LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, start, false);
         it.advanceTo(LocalDate.now());
         return it.hasNext() ? it.next() : null;

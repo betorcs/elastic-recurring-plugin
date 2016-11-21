@@ -42,10 +42,13 @@ public class NextOccurrenceSearchScript extends AbstractRecurringSearchScript {
     @Override
     public Object run() {
         Recurring recurring = getRecurring(getParamValueFor(PARAM_FIELD));
-        try {
-            LocalDate nextOccurrence = recurring.getNextOccurrence();
-            return nextOccurrence != null ? nextOccurrence.toString() : null;
-        } catch (ParseException ignored) { }
+        if (recurring != null) {
+            try {
+                LocalDate nextOccurrence = recurring.getNextOccurrence();
+                return nextOccurrence != null ? nextOccurrence.toString() : null;
+            } catch (ParseException ignored) {
+            }
+        }
         return null;
     }
 

@@ -20,6 +20,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.mapper.*;
+import org.elasticsearch.index.mapper.core.DateFieldMapper;
 import org.elasticsearch.index.mapper.core.StringFieldMapper;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.elasticsearch.index.mapper.MapperBuilders.dateField;
 import static org.elasticsearch.index.mapper.MapperBuilders.stringField;
 import static org.elasticsearch.index.mapper.core.TypeParsers.parseField;
 import static org.elasticsearch.index.mapper.core.TypeParsers.parseMultiField;
@@ -36,8 +38,8 @@ public class RecurringFieldMapper extends FieldMapper {
 
     public static final String CONTENT_TYPE = "recurring";
 
-    private final StringFieldMapper startDateMapper;
-    private final StringFieldMapper endDateMapper;
+    private final DateFieldMapper startDateMapper;
+    private final DateFieldMapper endDateMapper;
     private final StringFieldMapper rruleMapper;
     private final ContentPath.Type pathType;
 
@@ -150,13 +152,13 @@ public class RecurringFieldMapper extends FieldMapper {
             context.path().pathType(pathType);
             context.path().add(name);
 
-            StringFieldMapper.Builder startDateMapperBuilder = stringField(Names.START_DATE).includeInAll(false);
-            StringFieldMapper.Builder endDateMapperBuilder = stringField(Names.END_DATE).includeInAll(false);
+            DateFieldMapper.Builder startDateMapperBuilder = dateField(Names.START_DATE).includeInAll(false);
+            DateFieldMapper.Builder endDateMapperBuilder = dateField(Names.END_DATE).includeInAll(false);
             StringFieldMapper.Builder rruleMapperBuilder = stringField(Names.RRULE).includeInAll(false);
 
-            StringFieldMapper startDateMapper = startDateMapperBuilder.includeInAll(false)
+            DateFieldMapper startDateMapper = startDateMapperBuilder.includeInAll(false)
                     .store(fieldType.stored()).build(context);
-            StringFieldMapper endDateMapper = endDateMapperBuilder.includeInAll(false)
+            DateFieldMapper endDateMapper = endDateMapperBuilder.includeInAll(false)
                     .store(fieldType.stored()).build(context);
             StringFieldMapper rruleMapper = rruleMapperBuilder.includeInAll(false)
                     .store(fieldType.stored()).build(context);
@@ -170,8 +172,8 @@ public class RecurringFieldMapper extends FieldMapper {
     }
 
     protected RecurringFieldMapper(String simpleName, MappedFieldType fieldType, MappedFieldType defaultFieldType,
-                                   Settings indexSettings, ContentPath.Type pathType, StringFieldMapper dtstartMapper,
-                                   StringFieldMapper dtendMapper, StringFieldMapper rruleMapper, MultiFields multiFields,
+                                   Settings indexSettings, ContentPath.Type pathType, DateFieldMapper dtstartMapper,
+                                   DateFieldMapper dtendMapper, StringFieldMapper rruleMapper, MultiFields multiFields,
                                    CopyTo copyTo) {
         super(simpleName, fieldType, defaultFieldType, indexSettings, multiFields, copyTo);
 

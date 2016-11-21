@@ -1,7 +1,7 @@
 # elastic-recurring-plugin
 
 Allow to work in ES with some features of recurrent dates defined in [rfc2445](https://www.ietf.org/rfc/rfc2445.txt). 
-This plugin adds a new type named *recurring* and the native scripts: *nextOccurrence*, *hasOccurrencesAt*, *occurBetween* and *isOccurring*.
+This plugin adds a new type named *recurring* and the native scripts: *nextOccurrence*, *hasOccurrencesAt*, *occurBetween* and *notHasExpired*.
 
 It was tested in ES 2.3.5 and 2.4.1.
 
@@ -69,13 +69,12 @@ Script field returns `true` if event occurrs in determinated range of date.
 - *start* - Starting date inclusive.
 - *end* - Ending date inclusive.
 
-### isOccurring
+### notHasExpired
 
-Script field returns `true` if event is occurring considering server date.
+Script field returns `true` if event is not expired considering server date.
 
 *Parameters:*  
 - *field* - Name of property, type must be _recurring_.
-
 
 ### Samples
 
@@ -335,7 +334,7 @@ RESPONSE
 }
 ```
 
-### isOccurring
+### notHasExpired
 
 POST `sample/event/_search`
 ```
@@ -344,7 +343,7 @@ POST `sample/event/_search`
     "bool": {
       "filter": {
         "script": {
-          "script": "isOccurring",
+          "script": "notHasExpired",
           "lang": "native",
           "params": {
             "field": "recurrent_date"

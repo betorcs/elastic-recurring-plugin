@@ -16,7 +16,7 @@ package org.devmaster.elasticsearch.plugin;
 
 import org.devmaster.elasticsearch.index.mapper.RecurringFieldMapper;
 import org.devmaster.elasticsearch.script.HasOccurrencesAtSearchScript;
-import org.devmaster.elasticsearch.script.IsOccurringSearchScript;
+import org.devmaster.elasticsearch.script.NotHasExpiredSearchScript;
 import org.devmaster.elasticsearch.script.NextOccurrenceSearchScript;
 import org.devmaster.elasticsearch.script.OccurBetweenSearchScript;
 import org.elasticsearch.indices.IndicesModule;
@@ -40,7 +40,7 @@ public class RecurringPlugin extends Plugin {
         module.registerScript(NextOccurrenceSearchScript.SCRIPT_NAME, NextOccurrenceSearchScript.Factory.class);
         module.registerScript(HasOccurrencesAtSearchScript.SCRIPT_NAME, HasOccurrencesAtSearchScript.Factory.class);
         module.registerScript(OccurBetweenSearchScript.SCRIPT_NAME, OccurBetweenSearchScript.Factory.class);
-        module.registerScript(IsOccurringSearchScript.SCRIPT_NAME, IsOccurringSearchScript.Factory.class);
+        module.registerScript(NotHasExpiredSearchScript.SCRIPT_NAME, NotHasExpiredSearchScript.Factory.class);
     }
 
     public void onModule(IndicesModule module) {

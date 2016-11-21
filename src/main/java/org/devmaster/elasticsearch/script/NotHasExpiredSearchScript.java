@@ -20,18 +20,18 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Map;
 
-public class IsOccurringSearchScript extends AbstractRecurringSearchScript {
+public class NotHasExpiredSearchScript extends AbstractRecurringSearchScript {
 
-    public static final String SCRIPT_NAME = "isOccurring";
+    public static final String SCRIPT_NAME = "notHasExpired";
     private static final String PARAM_FIELD = "field";
 
-    public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<IsOccurringSearchScript> {
+    public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<NotHasExpiredSearchScript> {
         public Factory() {
-            super(IsOccurringSearchScript.class, Arrays.asList(PARAM_FIELD));
+            super(NotHasExpiredSearchScript.class, Arrays.asList(PARAM_FIELD));
         }
     }
 
-    public IsOccurringSearchScript(Map<String, String> paramMap) {
+    public NotHasExpiredSearchScript(Map<String, String> paramMap) {
         super(paramMap);
     }
 
@@ -39,7 +39,7 @@ public class IsOccurringSearchScript extends AbstractRecurringSearchScript {
     public Object run() {
         Recurring recurring = getRecurring(getParamValueFor(PARAM_FIELD));
         try {
-            return recurring != null && recurring.isOccurring();
+            return recurring != null && recurring.notHasExpired();
         } catch (ParseException ignored) {}
         return false;
     }

@@ -116,7 +116,7 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         params = new HashMap<>();
         params.put("field", "recurrent_date");
         searchResponse = client().prepareSearch("test")
-                .setQuery(scriptQuery(new Script("isOccurring", ScriptService.ScriptType.INLINE, "native", params)))
+                .setQuery(scriptQuery(new Script("notHasExpired", ScriptService.ScriptType.INLINE, "native", params)))
                 .execute().actionGet();
         logger.info("Eventos que estão ocorrendo");
         logger.info(searchResponse.toString());

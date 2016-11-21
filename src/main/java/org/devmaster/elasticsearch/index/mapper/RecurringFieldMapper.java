@@ -207,10 +207,15 @@ public class RecurringFieldMapper extends FieldMapper {
         }
 
         startDateMapper.parse(context.createExternalValueContext(recurring.getStartDate()));
+
         if (null != recurring.getEndDate()) {
             endDateMapper.parse(context.createExternalValueContext(recurring.getEndDate()));
         }
-        rruleMapper.parse(context.createExternalValueContext(recurring.getRrule()));
+
+        if (null != recurring.getRrule()) {
+            rruleMapper.parse(context.createExternalValueContext(recurring.getRrule()));
+        }
+
         multiFields.parse(this, context.createExternalValueContext(recurring));
 
         context.path().remove();

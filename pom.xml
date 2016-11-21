@@ -47,6 +47,12 @@
             <artifactId>google-rfc-2445</artifactId>
             <version>20110304</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

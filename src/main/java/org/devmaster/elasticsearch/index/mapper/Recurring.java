@@ -111,31 +111,15 @@ public final class Recurring {
 
     public LocalDate getNextOccurrence() throws ParseException {
 
-        final LocalDate today = LocalDate.now();
+        final LocalDate start = new LocalDate(this.startDate);
 
         if (this.rrule != null) {
-
-            LocalDate start = new LocalDate(this.startDate).minusDays(1);
-            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, start, false);
-            it.advanceTo(today);
-
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, start.minusDays(1), false);
+            it.advanceTo(LocalDate.now());
             return it.hasNext() ? it.next() : null;
-
-        } else if (this.endDate != null) {
-            LocalDate start = new LocalDate(this.startDate);
-            LocalDate end = new LocalDate(this.endDate);
-
-            if (!today.isAfter(start)) {
-                return start;
-            } else if (!today.isAfter(end)) {
-                return end;
-            } else {
-                return null;
-            }
         }
 
-        LocalDate date = new LocalDate(this.startDate);
-        return !date.isBefore(today) ? date : null;
+        return start;
     }
 
     public boolean notHasExpired() throws ParseException {

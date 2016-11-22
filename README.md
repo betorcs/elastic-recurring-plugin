@@ -47,10 +47,12 @@ The above mapping defines a _recurring_, which accepts the follow format:
 
 ### nextOccurrence
 
-Script field returns date of next occurrence of event in yyyy-MM-dd.
+Script field returns date of next occurrence of event in yyyy-MM-dd when it's recurrent, 
+and the `start_date` when start/end is valid yet, to both situation today'll be considered if `from` parameter is omitted.
 
 *Parameters:*
 - *field* - Name of property, type must be _recurring_.
+- *from* - Optional, date to be considered _from_.
 
 ### hasOccurrencesAt
 

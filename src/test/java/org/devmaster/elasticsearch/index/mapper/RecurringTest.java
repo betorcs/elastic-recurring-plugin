@@ -45,29 +45,30 @@ public class RecurringTest {
 
     @Test
     public void test_nextOccurrence() throws Exception {
-        assertNull(recurring("2016-11-10", null, null).getNextOccurrence());
-        assertNull(recurring("2016-11-10", "2016-11-15", null).getNextOccurrence());
-        assertNull(recurring("2016-02-10", null, "RRULE:FREQ=MONTHLY;BYDAY=SU;COUNT=1").getNextOccurrence());
 
         LocalDate today = LocalDate.now();
 
+        assertNull(recurring("2016-11-10", null, null).getNextOccurrence(today));
+        assertNull(recurring("2016-11-10", "2016-11-15", null).getNextOccurrence(today));
+        assertNull(recurring("2016-02-10", null, "RRULE:FREQ=MONTHLY;BYDAY=SU;COUNT=1").getNextOccurrence(today));
+
         // Testing single date
-        LocalDate nextOccurrence = recurring(today.toString("yyyy-MM-dd"), null, null).getNextOccurrence();
+        LocalDate nextOccurrence = recurring(today.toString("yyyy-MM-dd"), null, null).getNextOccurrence(today);
         assertNotNull(nextOccurrence);
         assertTrue(today.isEqual(nextOccurrence));
 
         // Testing a range of dates
-        LocalDate nextOccurrence1 = recurring(today.toString("yyyy-MM-dd"), today.plusDays(5).toString("yyyy-MM-dd"), null).getNextOccurrence();
+        LocalDate nextOccurrence1 = recurring(today.toString("yyyy-MM-dd"), today.plusDays(5).toString("yyyy-MM-dd"), null).getNextOccurrence(today);
         assertNotNull(nextOccurrence1);
         assertTrue(today.isEqual(nextOccurrence1));
 
         // Testing recurrence
-        LocalDate nextOccurr = recurring(today.minusDays(160).toString("yyyy-MM-dd"), null, "RRULE:FREQ=MONTHLY;BYDAY=MO")
-                .getNextOccurrence();
+        LocalDate nextOccur = recurring(today.minusDays(160).toString("yyyy-MM-dd"), null, "RRULE:FREQ=MONTHLY;BYDAY=MO")
+                .getNextOccurrence(today);
 
-        assertNotNull(nextOccurr);
-        assertEquals(1, nextOccurr.getDayOfWeek());
-        assertTrue(nextOccurr.isEqual(today) || nextOccurr.isAfter(today));
+        assertNotNull(nextOccur);
+        assertEquals(1, nextOccur.getDayOfWeek());
+        assertTrue(nextOccur.isEqual(today) || nextOccur.isAfter(today));
     }
 
     @Test

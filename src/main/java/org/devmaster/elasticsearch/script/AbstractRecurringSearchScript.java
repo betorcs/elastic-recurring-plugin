@@ -30,10 +30,22 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
 
     static abstract class AbstractFactory<T extends AbstractRecurringSearchScript> implements NativeScriptFactory {
 
-        private final List<String> wantedFields;
+        private final Map<String, Boolean> wantedFields;
         private final Class<T> cls;
 
+        private static Map<String, Boolean> buildMap(List<String> items) {
+            Map<String, Boolean> map = new HashMap<>();
+            for (String item : items) {
+                map.put(item, true);
+            }
+            return map;
+        }
+
         AbstractFactory(Class<T> cls, List<String> wantedFields) {
+            this(cls, buildMap(wantedFields));
+        }
+
+        AbstractFactory(Class<T> cls, Map<String, Boolean> wantedFields) {
             this.wantedFields = wantedFields;
             this.cls = cls;
         }
@@ -41,12 +53,12 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
         @Override
         public T newScript(@Nullable Map<String, Object> params) {
             Map<String, String> paramMap = new HashMap<>();
-            for (String paramName : wantedFields) {
-                String paramValue = params == null ? null : XContentMapValues.nodeStringValue(params.get(paramName), null);
-                if (paramValue == null) {
-                    throw new ScriptException("Missing the [" + paramName + "] parameter");
+            for (Map.Entry<String, Boolean> paramEntry : wantedFields.entrySet()) {
+                String paramValue = params == null ? null : XContentMapValues.nodeStringValue(params.get(paramEntry.getKey()), null);
+                if (paramEntry.getValue() && paramValue == null) {
+                    throw new ScriptException("Missing the [" + paramEntry + "] parameter");
                 }
-                paramMap.put(paramName, paramValue);
+                paramMap.put(paramEntry.getKey(), paramValue);
             }
 
             try {

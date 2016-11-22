@@ -109,22 +109,24 @@ public final class Recurring {
         return !startDate.isBefore(start) && !startDate.isAfter(end);
     }
 
-    public LocalDate getNextOccurrence() throws ParseException {
+    public LocalDate getNextOccurrence(LocalDate date) throws ParseException {
 
         final LocalDate start = new LocalDate(this.startDate);
 
         if (this.rrule != null) {
             LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, start.minusDays(1), false);
-            it.advanceTo(LocalDate.now());
+            it.advanceTo(date);
             return it.hasNext() ? it.next() : null;
+        } else if (this.endDate == null) {
+            return !date.isAfter(start) ? start : null;
+        } else {
+            LocalDate end = new LocalDate(this.endDate);
+            return !date.isAfter(end) ? start : null;
         }
-
-        return start;
     }
 
     public boolean notHasExpired() throws ParseException {
         final LocalDate today = LocalDate.now();
-        LocalDate nextOccurrence = getNextOccurrence();
-        return nextOccurrence != null && (today.isBefore(nextOccurrence) || today.isEqual(nextOccurrence));
+        return getNextOccurrence(today) != null;
     }
 }

@@ -123,6 +123,19 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         assertNoFailures(searchResponse);
         assertHitCount(searchResponse, 3);
 
+        // Show eventos em dezembro
+        params = new HashMap<>();
+        params.put("field", "recurrent_date");
+        params.put("start", "2017-01-01");
+        params.put("end", "2018-05-31");
+        searchResponse = client().prepareSearch("test")
+                .setQuery(scriptQuery(new Script("occurBetween", ScriptService.ScriptType.INLINE, "native", params)))
+                .addScriptField("occur", new Script(
+                        "occurrencesBetween", ScriptService.ScriptType.INLINE, "native", params))
+                .execute().actionGet();
+        logger.info(searchResponse.toString());
+        assertNoFailures(searchResponse);
+
     }
 
     private XContentBuilder createDoc(String name, String dtstart, String dtend, String rrule) throws IOException {

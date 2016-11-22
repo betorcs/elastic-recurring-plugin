@@ -17,9 +17,22 @@ package org.devmaster.elasticsearch.index.mapper;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class RecurringTest {
+
+    @Test
+    public void test_occurrencesBetween() throws ParseException {
+        Recurring recurring = recurring("2016-01-01", null, "RRULE:FREQ=WEEKLY;BYDAY=TU,TH;WKST=SU");
+        LocalDate start = new LocalDate("2016-01-02");
+        LocalDate end = new LocalDate("2016-01-20");
+        List<String> occurrences = recurring.occurrencesBetween(start, end);
+        assertNotNull(occurrences);
+        assertEquals(5, occurrences.size());
+    }
 
     @Test
     public void test_notHasExpired() throws Exception {

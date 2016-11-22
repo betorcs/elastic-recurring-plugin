@@ -20,6 +20,8 @@ import org.elasticsearch.common.Strings;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
 
@@ -128,5 +130,29 @@ public final class Recurring {
     public boolean notHasExpired() throws ParseException {
         final LocalDate today = LocalDate.now();
         return getNextOccurrence(today) != null;
+    }
+
+    public List<String> occurrencesBetween(LocalDate start, LocalDate end) throws ParseException {
+        final LocalDate date = new LocalDate(this.startDate);
+        List<String> dates = new ArrayList<>();
+        if (this.rrule != null) {
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, date.minusDays(1), true);
+            it.advanceTo(start);
+
+            if (it.hasNext()) {
+                do {
+                    LocalDate current = it.next();
+                    if (current != null && !current.isAfter(end)) {
+                        dates.add(current.toString());
+                    } else {
+                        break;
+                    }
+
+                } while (it.hasNext());
+            }
+        } else {
+            dates.add(date.toString());
+        }
+        return dates;
     }
 }

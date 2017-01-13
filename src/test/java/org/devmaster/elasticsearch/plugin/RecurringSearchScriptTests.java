@@ -16,6 +16,7 @@ package org.devmaster.elasticsearch.plugin;
 
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptService;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.scriptQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.*;
 
 public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
@@ -36,12 +39,27 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
 
         String mapping = jsonBuilder().startObject().startObject("type")
                 .startObject("properties")
-                    .startObject("name").field("type", "string").endObject()
+                    .startObject("name")
+                        .field("type", "string")
+                        .startObject("fields")
+                            .startObject("analyzed")
+                                .field("type", "string")
+                                .field("analyzer", "text")
+                            .endObject()
+                            .startObject("raw")
+                                .field("type", "string")
+                                .field("index", "not_analyzed")
+                            .endObject()
+                        .endObject()
+                    .endObject()
                     .startObject("recurrent_date").field("type", "recurring").endObject()
                 .endObject().endObject().endObject()
                 .string();
 
-        assertAcked(prepareCreate("test")
+        assertAcked(prepareCreate("test", 1, Settings.settingsBuilder()
+                    .put("index.number_of_shards", 2)
+                    .put("index.number_of_replicas", 1)
+                    .put("analysis.analyzer.text.type", "brazilian"))
                 .addMapping("type", mapping));
 
         List<IndexRequestBuilder> indexBuilders = new ArrayList<>();
@@ -72,6 +90,14 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         assertNoFailures(searchResponse);
         assertHitCount(searchResponse, indexBuilders.size());
 
+        // Search natal
+        searchResponse = client().prepareSearch("test")
+                .setQuery(boolQuery().should(termQuery("name", "natal")))
+                .execute().actionGet();
+        logger.info("Looking for natal");
+        logger.info(searchResponse.toString());
+        assertNoFailures(searchResponse);
+        assertHitCount(searchResponse, 1);
 
         // Show dias das maes
         params = new HashMap<>();

@@ -84,9 +84,9 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
         if (source().containsKey(fieldName)) {
             Map<String, Object> map = (Map<String, Object>) source().get(fieldName);
 
-            String rrule = (String) map.get(RecurringFieldMapper.Names.RRULE);
-            String startDate = (String) map.get(RecurringFieldMapper.Names.START_DATE);
-            String endDate = (String) map.get(RecurringFieldMapper.Names.END_DATE);
+            String rrule = (String) map.get(RecurringFieldMapper.FieldNames.RRULE);
+            String startDate = (String) map.get(RecurringFieldMapper.FieldNames.START_DATE);
+            String endDate = (String) map.get(RecurringFieldMapper.FieldNames.END_DATE);
             return new Recurring(startDate, endDate, rrule);
         }
         return null;

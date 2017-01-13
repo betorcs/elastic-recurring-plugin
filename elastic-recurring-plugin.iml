@@ -36,11 +36,11 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-codecs:5.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.carrotsearch.randomizedtesting:randomizedtesting-runner:2.3.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.elasticsearch:elasticsearch:test-jar:tests:2.3.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.elasticsearch:elasticsearch:test-jar:tests:2.3.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.elasticsearch:securesm:1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hdrhistogram:HdrHistogram:2.1.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.twitter:jsr166e:1.1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.elasticsearch:elasticsearch:2.3.5" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.elasticsearch:elasticsearch:2.3.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.lucene:lucene-core:5.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.lucene:lucene-backward-codecs:5.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.lucene:lucene-analyzers-common:5.5.0" level="project" />

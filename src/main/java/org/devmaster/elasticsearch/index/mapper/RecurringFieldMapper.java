@@ -16,8 +16,10 @@ package org.devmaster.elasticsearch.index.mapper;
 
 import com.google.common.collect.Iterators;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexOptions;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.DateFieldMapper;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.lucene.index.IndexOptions.DOCS;
 import static org.elasticsearch.index.mapper.MapperBuilders.dateField;
 import static org.elasticsearch.index.mapper.MapperBuilders.stringField;
 import static org.elasticsearch.index.mapper.core.TypeParsers.parseField;
@@ -43,20 +46,28 @@ public class RecurringFieldMapper extends FieldMapper {
     private final StringFieldMapper rruleMapper;
     private final ContentPath.Type pathType;
 
+    public static class Defaults {
+        public static final ContentPath.Type PATH_TYPE = ContentPath.Type.FULL;
+
+        public static final RecurringFieldType FIELD_TYPE = new RecurringFieldType();
+
+        static {
+            FIELD_TYPE.freeze();
+        }
+    }
+
+    public static class FieldNames {
+        public static String START_DATE = "start_date";
+        public static String END_DATE = "end_date";
+        public static String RRULE = "rrule";
+    }
+
     public static class RecurringFieldType extends MappedFieldType {
 
-        protected MappedFieldType startDateFieldType;
-        protected MappedFieldType endDateFieldType;
-        protected MappedFieldType rruleFieldType;
-
-        public RecurringFieldType() {
-        }
+        public RecurringFieldType() {}
 
         protected RecurringFieldType(RecurringFieldMapper.RecurringFieldType ref) {
             super(ref);
-            this.startDateFieldType = ref.startDateFieldType;
-            this.endDateFieldType = ref.endDateFieldType;
-            this.rruleFieldType = ref.rruleFieldType;
         }
 
         @Override
@@ -74,44 +85,55 @@ public class RecurringFieldMapper extends FieldMapper {
             return value == null ? null : value.toString();
         }
 
+    }
+
+
+    public static class Builder extends FieldMapper.Builder<Builder, RecurringFieldMapper> {
+
+        protected ContentPath.Type pathType = Defaults.PATH_TYPE;
+
+        private Mapper.Builder startDateBuilder = dateField(FieldNames.START_DATE);
+        private Mapper.Builder endDateBuilder = dateField(FieldNames.END_DATE);
+        private Mapper.Builder rruleBuilder = stringField(FieldNames.RRULE);
+
+        protected Builder(String name) {
+            super(name, new RecurringFieldType(), new RecurringFieldType());
+            this.builder = this;
+        }
+
         @Override
-        public boolean equals(Object o) {
-            if (!super.equals(o)) return false;
-            RecurringFieldType that = (RecurringFieldType) o;
-            return java.util.Objects.equals(startDateFieldType, that.startDateFieldType)
-                    && java.util.Objects.equals(endDateFieldType, that.endDateFieldType)
-                    && java.util.Objects.equals(rruleFieldType, that.rruleFieldType);
-        }
+        public RecurringFieldMapper build(BuilderContext context) {
+            ContentPath.Type origPathType = context.path().pathType();
+            context.path().pathType(pathType);
 
-        @Override
-        public int hashCode() {
-            return java.util.Objects.hash(super.hashCode(), startDateFieldType, endDateFieldType, rruleFieldType);
-        }
+            DateFieldMapper startDateMapper = (DateFieldMapper) startDateBuilder.build(context);
+            DateFieldMapper endDateMapper = (DateFieldMapper) endDateBuilder.build(context);
+            StringFieldMapper rruleMapper = (StringFieldMapper) rruleBuilder.build(context);
+            context.path().remove();
 
-        public MappedFieldType startDateFieldType() {
-            return endDateFieldType;
-        }
+            context.path().pathType(origPathType);
 
-        public MappedFieldType endDateFieldType() {
-            return endDateFieldType;
-        }
+            MappedFieldType defaultFieldType = Defaults.FIELD_TYPE.clone();
+            if (this.fieldType.indexOptions() != IndexOptions.NONE && !this.fieldType.tokenized()) {
+                defaultFieldType.setOmitNorms(true);
+                defaultFieldType.setIndexOptions(DOCS);
+                if (!this.omitNormsSet && this.fieldType.boost() == 1.0F) {
+                    this.fieldType.setOmitNorms(true);
+                }
 
-        public MappedFieldType rruleFieldType() {
-            return rruleFieldType;
+                if (!this.indexOptionsSet) {
+                    this.fieldType.setIndexOptions(DOCS);
+                }
+            }
+            defaultFieldType.freeze();
+
+            this.setupFieldType(context);
+            return new RecurringFieldMapper(name, fieldType, defaultFieldType, context.indexSettings(), pathType,
+                    startDateMapper, endDateMapper, rruleMapper, multiFieldsBuilder.build(this, context), copyTo);
         }
 
     }
 
-
-    public static class Names {
-        public static String START_DATE = "start_date";
-        public static String END_DATE = "end_date";
-        public static String RRULE = "rrule";
-    }
-
-    public static class Defaults {
-        public static final ContentPath.Type PATH_TYPE = ContentPath.Type.FULL;
-    }
 
     public static class TypeParser implements Mapper.TypeParser {
 
@@ -138,38 +160,7 @@ public class RecurringFieldMapper extends FieldMapper {
     }
 
 
-    public static class Builder extends FieldMapper.Builder<Builder, RecurringFieldMapper> {
 
-        protected ContentPath.Type pathType = Defaults.PATH_TYPE;
-
-        protected Builder(String name) {
-            super(name, new RecurringFieldType(), new RecurringFieldType());
-            this.builder = this;
-        }
-
-        @Override
-        public RecurringFieldMapper build(BuilderContext context) {
-            context.path().pathType(pathType);
-            context.path().add(name);
-
-            DateFieldMapper.Builder startDateMapperBuilder = dateField(Names.START_DATE).includeInAll(false);
-            DateFieldMapper.Builder endDateMapperBuilder = dateField(Names.END_DATE).includeInAll(false);
-            StringFieldMapper.Builder rruleMapperBuilder = stringField(Names.RRULE).includeInAll(false);
-
-            DateFieldMapper startDateMapper = startDateMapperBuilder.includeInAll(false)
-                    .store(fieldType.stored()).build(context);
-            DateFieldMapper endDateMapper = endDateMapperBuilder.includeInAll(false)
-                    .store(fieldType.stored()).build(context);
-            StringFieldMapper rruleMapper = rruleMapperBuilder.includeInAll(false)
-                    .store(fieldType.stored()).build(context);
-
-            this.setupFieldType(context);
-
-            return new RecurringFieldMapper(name, fieldType, defaultFieldType, context.indexSettings(), pathType,
-                    startDateMapper, endDateMapper, rruleMapper, multiFieldsBuilder.build(this, context), copyTo);
-        }
-
-    }
 
     protected RecurringFieldMapper(String simpleName, MappedFieldType fieldType, MappedFieldType defaultFieldType,
                                    Settings indexSettings, ContentPath.Type pathType, DateFieldMapper dtstartMapper,
@@ -199,11 +190,11 @@ public class RecurringFieldMapper extends FieldMapper {
         Recurring recurring = new Recurring();
         Map<String, Object> map = parser.map();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (Names.START_DATE.equals(entry.getKey())) {
+            if (FieldNames.START_DATE.equals(entry.getKey())) {
                 recurring.setStartDate((String) entry.getValue());
-            } else if (Names.END_DATE.equals(entry.getKey())) {
+            } else if (FieldNames.END_DATE.equals(entry.getKey())) {
                 recurring.setEndDate((String) entry.getValue());
-            } else if (Names.RRULE.equals(entry.getKey())) {
+            } else if (FieldNames.RRULE.equals(entry.getKey())) {
                 recurring.setRrule((String) entry.getValue());
             }
         }
@@ -242,5 +233,17 @@ public class RecurringFieldMapper extends FieldMapper {
                 endDateMapper,
                 rruleMapper);
         return Iterators.concat(super.iterator(), extras.iterator());
+    }
+
+    @Override
+    public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
+        builder.startObject(simpleName());
+        builder.field("type", CONTENT_TYPE);
+        startDateMapper.toXContent(builder, params);
+        endDateMapper.toXContent(builder, params);
+        rruleMapper.toXContent(builder, params);
+        multiFields.toXContent(builder, params);
+        builder.endObject();
+        return super.toXContent(builder, params);
     }
 }

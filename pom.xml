@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.elasticsearch.plugin</groupId>
         <artifactId>plugins</artifactId>
-        <version>2.3.5</version>
+        <version>2.3.4</version>
     </parent>
 
     <groupId>org.devmaster.elasticsearch</groupId>
@@ -30,7 +30,7 @@
     <version>0.1</version>
 
     <properties>
-        <elasticsearch.version>2.3.5</elasticsearch.version>
+        <elasticsearch.version>2.3.4</elasticsearch.version>
         <elasticsearch.plugin.classname>org.devmaster.elasticsearch.plugin.RecurringPlugin</elasticsearch.plugin.classname>
 
         <elasticsearch.license.header>${project.basedir}/dev-tools/src/main/resources/license-check/license_header.txt</elasticsearch.license.header>

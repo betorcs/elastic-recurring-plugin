@@ -105,10 +105,12 @@ public class RecurringFieldMapper extends FieldMapper {
         public RecurringFieldMapper build(BuilderContext context) {
             ContentPath.Type origPathType = context.path().pathType();
             context.path().pathType(pathType);
+            context.path().add(name);
 
             DateFieldMapper startDateMapper = (DateFieldMapper) startDateBuilder.build(context);
             DateFieldMapper endDateMapper = (DateFieldMapper) endDateBuilder.build(context);
             StringFieldMapper rruleMapper = (StringFieldMapper) rruleBuilder.build(context);
+
             context.path().remove();
 
             context.path().pathType(origPathType);

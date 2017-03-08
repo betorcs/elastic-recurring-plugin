@@ -16,3 +16,4 @@ install: true
 script:
   - sudo apt-get update && sudo apt-get install oracle-java8-installer
   - ./gradlew clean test
+  - ./gradlew clean check

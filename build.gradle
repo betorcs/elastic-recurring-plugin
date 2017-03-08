@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.elasticsearch.gradle:build-tools:5.0.0"
+    }
+}
+
+group = 'org.devmaster.elasticsearch'
+version = '5.0'
+
+apply plugin: 'java'
+apply plugin: 'elasticsearch.esplugin'
+apply plugin: 'idea'
+
+esplugin {
+    name "elastic-recurring-plugin"
+    description "Plugin to handle with recurring event using rfc-2445 rules."
+    classname "org.devmaster.elasticsearch.plugin.RecurringPlugin"
+}
+
+
+dependencies {
+    compile "org.scala-saddle:google-rfc-2445:20110304"
+    compile "com.google.guava:guava:18.0"
+}
+
+dependencyLicenses.enabled = false
+thirdPartyAudit.enabled = false

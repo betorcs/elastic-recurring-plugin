@@ -22,6 +22,7 @@ import org.elasticsearch.script.AbstractSearchScript;
 import org.elasticsearch.script.NativeScriptFactory;
 import org.elasticsearch.script.ScriptException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,10 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
             for (Map.Entry<String, Boolean> paramEntry : wantedFields.entrySet()) {
                 String paramValue = params == null ? null : XContentMapValues.nodeStringValue(params.get(paramEntry.getKey()), null);
                 if (paramEntry.getValue() && paramValue == null) {
-                    throw new ScriptException("Missing the [" + paramEntry + "] parameter");
+                    throw new ScriptException("Missing the [" + paramEntry + "] parameter",
+                            new IllegalArgumentException(),
+                            Collections.singletonList(""),
+                            getName(), "native");
                 }
                 paramMap.put(paramEntry.getKey(), paramValue);
             }
@@ -64,7 +68,7 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
             try {
                 return cls.getDeclaredConstructor(Map.class).newInstance(paramMap);
             } catch (Exception e) {
-                throw new ScriptException("Error while loading script class: " + cls.getName());
+                throw newScriptException("Error while loading script class: " + cls.getName(), e, getName());
             }
         }
 
@@ -80,6 +84,8 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
         this.paramMap = paramMap;
     }
 
+
+    @SuppressWarnings("unchecked")
     protected Recurring getRecurring(String fieldName) {
         if (source().containsKey(fieldName)) {
             Map<String, Object> map = (Map<String, Object>) source().get(fieldName);
@@ -94,6 +100,10 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
 
     protected String getParamValueFor(String paramName) {
         return paramMap.get(paramName);
+    }
+
+    static ScriptException newScriptException(String message, Throwable throwable, String name) {
+        return new ScriptException(message, throwable, Collections.emptyList(), name, "native");
     }
 
 }

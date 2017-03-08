@@ -45,6 +45,10 @@ public class NextOccurrenceSearchScript extends AbstractRecurringSearchScript {
             return map;
         }
 
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     @Override

@@ -56,7 +56,7 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
                 .endObject().endObject().endObject()
                 .string();
 
-        assertAcked(prepareCreate("test", 1, Settings.settingsBuilder()
+        assertAcked(prepareCreate("test", 1, Settings.builder()
                     .put("index.number_of_shards", 2)
                     .put("index.number_of_replicas", 1)
                     .put("analysis.analyzer.text.type", "brazilian"))

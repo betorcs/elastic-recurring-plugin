@@ -15,7 +15,6 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
-import org.elasticsearch.script.ScriptException;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
@@ -38,6 +37,11 @@ public class HasOccurrencesAtSearchScript extends AbstractRecurringSearchScript 
         public Factory() {
             super(HasOccurrencesAtSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_DATE));
         }
+
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     @Override
@@ -47,7 +51,7 @@ public class HasOccurrencesAtSearchScript extends AbstractRecurringSearchScript 
         try {
             return recurring != null && recurring.hasOccurrencesAt(new LocalDate(date));
         } catch (ParseException e) {
-            throw new ScriptException("Error while obtaining has occurrences at.");
+            throw newScriptException("Error while obtaining has occurrences at.", e, SCRIPT_NAME);
         }
     }
 }

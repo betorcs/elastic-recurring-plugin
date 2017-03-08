@@ -34,6 +34,11 @@ public class OccurrencesBetweenSearchScript extends AbstractRecurringSearchScrip
         public Factory() {
             super(OccurrencesBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
         }
+
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     public OccurrencesBetweenSearchScript(Map<String, String> paramMap) {

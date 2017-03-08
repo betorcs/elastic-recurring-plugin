@@ -29,6 +29,11 @@ public class NotHasExpiredSearchScript extends AbstractRecurringSearchScript {
         public Factory() {
             super(NotHasExpiredSearchScript.class, Arrays.asList(PARAM_FIELD));
         }
+
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     public NotHasExpiredSearchScript(Map<String, String> paramMap) {

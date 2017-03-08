@@ -15,7 +15,6 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
-import org.elasticsearch.script.ScriptException;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
@@ -34,6 +33,11 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
         public Factory() {
             super(OccurBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
         }
+
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     public OccurBetweenSearchScript(Map<String, String> paramMap) {
@@ -48,7 +52,7 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
         try {
             return recurring != null && recurring.occurBetween(new LocalDate(start), new LocalDate(end));
         } catch (ParseException e) {
-            throw new ScriptException("Error while check occur between.");
+            throw newScriptException("Error while check occur between.", e, SCRIPT_NAME);
         }
     }
 }

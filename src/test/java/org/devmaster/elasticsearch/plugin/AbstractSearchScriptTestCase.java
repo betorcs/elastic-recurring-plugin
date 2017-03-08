@@ -19,6 +19,7 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.ESIntegTestCase;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_REPLICAS;
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;
@@ -31,11 +32,13 @@ public class AbstractSearchScriptTestCase extends ESIntegTestCase {
         Settings.Builder builder = Settings.builder();
         builder.put(SETTING_NUMBER_OF_SHARDS, 1);
         builder.put(SETTING_NUMBER_OF_REPLICAS, 0);
+
         return builder.build();
     }
 
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
-        return pluginList(RecurringPlugin.class);
+        return Collections.singletonList(RecurringPlugin.class);
     }
+
 }

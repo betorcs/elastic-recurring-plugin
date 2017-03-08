@@ -16,33 +16,32 @@ package org.devmaster.elasticsearch.plugin;
 
 import org.devmaster.elasticsearch.index.mapper.RecurringFieldMapper;
 import org.devmaster.elasticsearch.script.*;
-import org.elasticsearch.indices.IndicesModule;
+import org.elasticsearch.index.mapper.Mapper;
+import org.elasticsearch.plugins.MapperPlugin;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.script.ScriptModule;
+import org.elasticsearch.plugins.ScriptPlugin;
+import org.elasticsearch.script.NativeScriptFactory;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
-public class RecurringPlugin extends Plugin {
+public class RecurringPlugin extends Plugin implements MapperPlugin, ScriptPlugin {
 
     @Override
-    public String name() {
-        return "native-recurring-plugin";
+    public Map<String, Mapper.TypeParser> getMappers() {
+        return Collections.singletonMap(RecurringFieldMapper.CONTENT_TYPE, new RecurringFieldMapper.TypeParser());
     }
 
     @Override
-    public String description() {
-        return "Native script to allow recurring feature";
-    }
-
-    public void onModule(ScriptModule module) {
-        module.registerScript(NextOccurrenceSearchScript.SCRIPT_NAME, NextOccurrenceSearchScript.Factory.class);
-        module.registerScript(HasOccurrencesAtSearchScript.SCRIPT_NAME, HasOccurrencesAtSearchScript.Factory.class);
-        module.registerScript(OccurBetweenSearchScript.SCRIPT_NAME, OccurBetweenSearchScript.Factory.class);
-        module.registerScript(NotHasExpiredSearchScript.SCRIPT_NAME, NotHasExpiredSearchScript.Factory.class);
-        module.registerScript(OccurrencesBetweenSearchScript.SCRIPT_NAME, OccurrencesBetweenSearchScript.Factory.class);
-    }
-
-    public void onModule(IndicesModule module) {
-        module.registerMapper(RecurringFieldMapper.CONTENT_TYPE, new RecurringFieldMapper.TypeParser());
+    public List<NativeScriptFactory> getNativeScripts() {
+        return Arrays.asList(new NextOccurrenceSearchScript.Factory(),
+                new HasOccurrencesAtSearchScript.Factory(),
+                new OccurBetweenSearchScript.Factory(),
+                new NotHasExpiredSearchScript.Factory(),
+                new OccurrencesBetweenSearchScript.Factory());
     }
 
 }

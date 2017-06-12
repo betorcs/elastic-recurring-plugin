@@ -43,30 +43,30 @@ public final class Recurring {
         setRrule(rrule);
     }
 
-    public String getStartDate() {
+    String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    void setStartDate(String startDate) {
         if (Strings.isNullOrEmpty(startDate))
             throw new IllegalArgumentException("Parameter startDate can not be null or empty");
 
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    void setEndDate(String endDate) {
         this.endDate = emptyToNull(endDate);
     }
 
-    public String getRrule() {
+    String getRrule() {
         return rrule;
     }
 
-    public void setRrule(String rrule) {
+    void setRrule(String rrule) {
         this.rrule = emptyToNull(rrule);
     }
 
@@ -85,7 +85,7 @@ public final class Recurring {
         }
     }
 
-    public boolean occurBetween(String start, String end) throws ParseException {
+    boolean occurBetween(String start, String end) throws ParseException {
         return occurBetween(new LocalDate(start), new LocalDate(end));
     }
 

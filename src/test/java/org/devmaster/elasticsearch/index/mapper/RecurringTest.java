@@ -98,15 +98,16 @@ public class RecurringTest {
 
     @Test
     public void test_occurrBetween_withRangeOfDay() throws Exception {
-        Recurring recurring = new Recurring("2016-11-10", "2016-11-15", null);
+        Recurring recurring = new Recurring("2016-11-10", "2016-11-11", null);
 
         assertTrue(recurring.occurBetween("2016-11-10", "2016-11-15"));
         assertTrue(recurring.occurBetween("2016-11-11", "2016-11-15"));
         assertTrue(recurring.occurBetween("2016-11-11", "2016-11-14"));
+        assertTrue(recurring.occurBetween("2016-11-09", "2016-11-14"));
+        assertTrue(recurring.occurBetween("2016-11-09", "2016-11-10"));
+        assertTrue(recurring.occurBetween("2016-11-09", "2016-11-16"));
 
-        assertFalse(recurring.occurBetween("2016-11-09", "2016-11-10"));
         assertFalse(recurring.occurBetween("2016-11-13", "2016-11-16"));
-        assertFalse(recurring.occurBetween("2016-11-09", "2016-11-16"));
     }
 
     @Test

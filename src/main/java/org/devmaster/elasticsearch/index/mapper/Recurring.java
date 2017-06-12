@@ -102,7 +102,7 @@ public final class Recurring {
                 return false;
             }
 
-        } else if (endDate != null) {
+        } else if (endDate != null && endDate.isAfter(startDate)) {
 
             return !start.isBefore(startDate) && !end.isAfter(endDate);
 

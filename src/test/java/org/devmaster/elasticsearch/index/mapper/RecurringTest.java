@@ -110,6 +110,19 @@ public class RecurringTest {
     }
 
     @Test
+    public void test_occurrBetween_withSameDay() throws Exception {
+        Recurring recurring = new Recurring("2016-11-10", "2016-11-10", null);
+
+        assertTrue(recurring.occurBetween("2016-11-10", "2016-11-10"));
+        assertTrue(recurring.occurBetween("2016-11-10", "2016-11-11"));
+        assertTrue(recurring.occurBetween("2016-11-09", "2016-11-10"));
+        assertTrue(recurring.occurBetween("2016-11-09", "2016-11-11"));
+
+        assertFalse(recurring.occurBetween("2016-11-09", "2016-11-09"));
+        assertFalse(recurring.occurBetween("2016-11-11", "2016-11-13"));
+    }
+
+    @Test
     public void test_occurrBetween_withReccurrence() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", null, "RRULE:FREQ=DAILY;BYDAY=TH,MO");
 

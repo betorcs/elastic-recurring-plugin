@@ -39,6 +39,11 @@ public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearch
         public Factory() {
             super(HasAnyOccurrenceBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
         }
+
+        @Override
+        public String getName() {
+            return SCRIPT_NAME;
+        }
     }
 
     @Override
@@ -49,7 +54,7 @@ public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearch
         try {
             return recurring != null && recurring.hasAnyOccurrenceBetween(startDate, endDate);
         } catch (ParseException e) {
-            throw new ScriptException("Error while obtaining has any occurrence between.");
+            throw newScriptException("Error while obtaining has any occurrence between.", e, SCRIPT_NAME);
         }
     }
 }

@@ -76,13 +76,27 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         indexBuilders.add(client().prepareIndex("test", "type", "4")
                 .setSource(createDoc("Revisão Mensal Cruze", "2016-02-10", null, "RRULE:FREQ=MONTHLY;BYMONTHDAY=10;COUNT=5;WKST=SU")));
 
+        indexBuilders.add(client().prepareIndex("test", "type", "5")
+                .setSource(createDoc("Evento Marcolão", "2017-06-01", "2017-06-30", null)));
+
         indexRandom(true, indexBuilders);
 
-
-        // Show next occurrences
+        // Show has any occurrence between
         Map<String, Object> params = new HashMap<>();
         params.put("field", "recurrent_date");
+        params.put("start", "2017-06-27");
+        params.put("end", "2017-06-27");
         SearchResponse searchResponse = client().prepareSearch("test")
+                .setQuery(scriptQuery(new Script("hasAnyOccurrenceBetween", ScriptService.ScriptType.INLINE, "native", params)))
+                .execute().actionGet();
+        logger.info(searchResponse.toString());
+        assertNoFailures(searchResponse);
+        assertHitCount(searchResponse, 1);
+
+        // Show next occurrences
+        params = new HashMap<>();
+        params.put("field", "recurrent_date");
+        searchResponse = client().prepareSearch("test")
                 .addScriptField("occur", new Script(
                         "nextOccurrence", ScriptService.ScriptType.INLINE, "native", params))
                 .execute().actionGet();
@@ -147,7 +161,7 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         logger.info("Eventos que estão ocorrendo");
         logger.info(searchResponse.toString());
         assertNoFailures(searchResponse);
-        assertHitCount(searchResponse, 3);
+        assertHitCount(searchResponse, 4);
 
         // Show eventos em dezembro
         params = new HashMap<>();

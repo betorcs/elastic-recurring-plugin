@@ -39,6 +39,7 @@ public class RecurringPlugin extends Plugin {
         module.registerScript(OccurBetweenSearchScript.SCRIPT_NAME, OccurBetweenSearchScript.Factory.class);
         module.registerScript(NotHasExpiredSearchScript.SCRIPT_NAME, NotHasExpiredSearchScript.Factory.class);
         module.registerScript(OccurrencesBetweenSearchScript.SCRIPT_NAME, OccurrencesBetweenSearchScript.Factory.class);
+        module.registerScript(HasAnyOccurrenceBetweenSearchScript.SCRIPT_NAME, HasAnyOccurrenceBetweenSearchScript.Factory.class);
     }
 
     public void onModule(IndicesModule module) {

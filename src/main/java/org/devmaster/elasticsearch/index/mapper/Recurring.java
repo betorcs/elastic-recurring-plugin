@@ -17,10 +17,7 @@ package org.devmaster.elasticsearch.index.mapper;
 import com.google.ical.compat.jodatime.LocalDateIterator;
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 import org.elasticsearch.common.Strings;
-import org.joda.time.Instant;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import org.joda.time.Period;
+import org.joda.time.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -162,5 +159,25 @@ public final class Recurring {
             dates.add(date.toString());
         }
         return dates;
+    }
+
+    public boolean hasAnyOccurrenceBetween(String start, String end) throws ParseException {
+        Interval lookingAtInterval = new Interval(Instant.parse(start), Instant.parse(end));
+        Instant startDate = Instant.parse(getStartDate());
+        if (rrule == null) {
+            Interval interval = new Interval(startDate, Instant.parse(getEndDate()));
+            return interval.abuts(lookingAtInterval) || interval.overlaps(lookingAtInterval);
+        } else {
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(startDate), false);
+            it.advanceTo(lookingAtInterval.getStart().toLocalDate());
+            if (it.hasNext()) {
+                for (LocalDate current = it.next(); it.hasNext() && !current.isAfter(lookingAtInterval.getEnd().toLocalDate()); current = it.next()) {
+                    if (lookingAtInterval.abuts(current.toInterval()) || lookingAtInterval.contains(current.toInterval())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

@@ -68,10 +68,6 @@ abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
             }
         }
 
-        @Override
-        public boolean needsScores() {
-            return false;
-        }
     }
 
     private final Map<String, String> paramMap;

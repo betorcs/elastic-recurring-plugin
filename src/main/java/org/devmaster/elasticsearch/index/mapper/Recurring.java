@@ -16,8 +16,9 @@ package org.devmaster.elasticsearch.index.mapper;
 
 import com.google.ical.compat.jodatime.LocalDateIterator;
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
-import org.elasticsearch.common.Strings;
-import org.joda.time.*;
+import org.joda.time.Instant;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public final class Recurring {
     }
 
     void setStartDate(String startDate) {
-        if (Strings.isNullOrEmpty(startDate))
+        if (startDate == null || startDate.trim().length() == 0)
             throw new IllegalArgumentException("Parameter startDate can not be null or empty");
 
         this.startDate = startDate;

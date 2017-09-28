@@ -14,14 +14,16 @@
 
 package org.devmaster.elasticsearch.plugin;
 
-import org.devmaster.elasticsearch.index.mapper.RecurringFieldMapper;
 import org.devmaster.elasticsearch.script.*;
-import org.elasticsearch.indices.IndicesModule;
-import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.common.inject.Module;
+import org.elasticsearch.plugins.AbstractPlugin;
 import org.elasticsearch.script.ScriptModule;
 
+import java.util.ArrayList;
+import java.util.Collection;
 
-public class RecurringPlugin extends Plugin {
+
+public class RecurringPlugin extends AbstractPlugin {
 
     @Override
     public String name() {
@@ -42,8 +44,10 @@ public class RecurringPlugin extends Plugin {
         module.registerScript(HasAnyOccurrenceBetweenSearchScript.SCRIPT_NAME, HasAnyOccurrenceBetweenSearchScript.Factory.class);
     }
 
-    public void onModule(IndicesModule module) {
-        module.registerMapper(RecurringFieldMapper.CONTENT_TYPE, new RecurringFieldMapper.TypeParser());
+    @Override
+    public Collection<Class<? extends Module>> indexModules() {
+        Collection<Class<? extends Module>> modules = new ArrayList<>();
+        modules.add(RecurringIndexModule.class);
+        return modules;
     }
-
 }

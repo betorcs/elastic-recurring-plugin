@@ -27,7 +27,7 @@
 
     <groupId>org.devmaster.elasticsearch</groupId>
     <artifactId>recurring-plugin</artifactId>
-    <version>0.1</version>
+    <version>1.0</version>
 
     <properties>
         <elasticsearch.version>2.3.5</elasticsearch.version>

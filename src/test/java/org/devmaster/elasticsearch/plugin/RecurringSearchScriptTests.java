@@ -161,7 +161,7 @@ public class RecurringSearchScriptTests extends AbstractSearchScriptTestCase {
         logger.info("Eventos que estão ocorrendo");
         logger.info(searchResponse.toString());
         assertNoFailures(searchResponse);
-        assertHitCount(searchResponse, 4);
+        assertHitCount(searchResponse, 3);
 
         // Show eventos em dezembro
         params = new HashMap<>();

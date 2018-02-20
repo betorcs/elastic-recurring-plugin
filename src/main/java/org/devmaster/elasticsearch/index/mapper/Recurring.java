@@ -141,7 +141,7 @@ public final class Recurring {
         final LocalDate date = new LocalDate(this.startDate);
         List<String> dates = new ArrayList<>();
         if (this.rrule != null) {
-            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, date.minusDays(1), true);
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, date, true);
             it.advanceTo(start);
 
             if (it.hasNext()) {

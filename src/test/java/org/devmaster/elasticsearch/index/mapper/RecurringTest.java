@@ -32,6 +32,11 @@ public class RecurringTest {
         List<String> occurrences = recurring.occurrencesBetween(start, end);
         assertNotNull(occurrences);
         assertEquals(5, occurrences.size());
+
+        Recurring coogeePro = recurring("2018-02-21", null, "RRULE:FREQ=MONTHLY;BYDAY=4WE;WKST=SU");
+        List<String> ocurrences = coogeePro.occurrencesBetween(new LocalDate(2018, 2, 16), new LocalDate(2018, 3, 16));
+        assertEquals(2, ocurrences.size());
+        assertEquals("2018-02-21", ocurrences.get(0));
     }
 
     @Test

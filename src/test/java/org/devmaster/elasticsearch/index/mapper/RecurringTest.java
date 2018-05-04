@@ -149,6 +149,19 @@ public class RecurringTest {
     }
 
     @Test
+    public void test_hasAnyOccurrenceBetween_weekly() throws Exception {
+        Recurring recurring = new Recurring("2018-05-02", "2018-06-07", "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20180607T000000Z;WKST=SU");
+
+        assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-08", "2018-05-08"));
+        assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-15", "2018-05-15"));
+        assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-22", "2018-05-22"));
+        assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-29", "2018-05-29"));
+        assertTrue(recurring.hasAnyOccurrenceBetween("2018-06-05", "2018-06-05"));
+        assertFalse(recurring.hasAnyOccurrenceBetween("2018-06-06", "2018-06-06"));
+
+    }
+
+    @Test
     public void test_occurBetween_withSameDay() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", "2016-11-10", null);
 

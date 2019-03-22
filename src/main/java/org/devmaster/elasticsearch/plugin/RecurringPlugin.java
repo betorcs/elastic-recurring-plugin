@@ -15,34 +15,42 @@
 package org.devmaster.elasticsearch.plugin;
 
 import org.devmaster.elasticsearch.index.mapper.RecurringFieldMapper;
-import org.devmaster.elasticsearch.script.*;
-import org.elasticsearch.index.mapper.Mapper;
-import org.elasticsearch.plugins.MapperPlugin;
-import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.plugins.ScriptPlugin;
-import org.elasticsearch.script.NativeScriptFactory;
+import org.devmaster.elasticsearch.script.HasAnyOccurrenceBetweenSearchScript;
+import org.devmaster.elasticsearch.script.HasOccurrencesAtSearchScript;
+import org.devmaster.elasticsearch.script.NextOccurrenceSearchScript;
+import org.devmaster.elasticsearch.script.NotHasExpiredSearchScript;
+import org.devmaster.elasticsearch.script.OccurBetweenSearchScript;
+import org.devmaster.elasticsearch.script.OccurrencesBetweenSearchScript;
 
-import java.util.Arrays;
+import org.elasticsearch.index.mapper.Mapper;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.plugins.MapperPlugin;
+import org.elasticsearch.plugins.IngestPlugin;
+import org.elasticsearch.ingest.Processor;
+
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-
-public class RecurringPlugin extends Plugin implements MapperPlugin, ScriptPlugin {
-
+public class RecurringPlugin extends Plugin implements MapperPlugin, IngestPlugin  {
+    
     @Override
     public Map<String, Mapper.TypeParser> getMappers() {
-        return Collections.singletonMap(RecurringFieldMapper.CONTENT_TYPE, new RecurringFieldMapper.TypeParser());
+        Map<String, Mapper.TypeParser> mappers = new LinkedHashMap<String, Mapper.TypeParser>();
+        mappers.put(RecurringFieldMapper.CONTENT_TYPE, new RecurringFieldMapper.TypeParser());
+        return Collections.unmodifiableMap(mappers);
     }
-
+    
     @Override
-    public List<NativeScriptFactory> getNativeScripts() {
-        return Arrays.asList(new NextOccurrenceSearchScript.Factory(),
-                new HasOccurrencesAtSearchScript.Factory(),
-                new OccurBetweenSearchScript.Factory(),
-                new NotHasExpiredSearchScript.Factory(),
-                new OccurrencesBetweenSearchScript.Factory(),
-                new HasAnyOccurrenceBetweenSearchScript.Factory());
+    public Map<String, Processor.Factory> getProcessors(Processor.Parameters parameters) {
+        Map<String, Processor.Factory> mappers = new LinkedHashMap<String, Processor.Factory>();
+        mappers.put(NextOccurrenceSearchScript.SCRIPT_NAME, (Processor.Factory) new NextOccurrenceSearchScript.Factory());
+        mappers.put(HasOccurrencesAtSearchScript.SCRIPT_NAME, (Processor.Factory) new HasOccurrencesAtSearchScript.Factory());
+        mappers.put(OccurBetweenSearchScript.SCRIPT_NAME, (Processor.Factory) new OccurBetweenSearchScript.Factory());
+        mappers.put(NotHasExpiredSearchScript.SCRIPT_NAME, (Processor.Factory) new NotHasExpiredSearchScript.Factory());
+        mappers.put(OccurrencesBetweenSearchScript.SCRIPT_NAME, (Processor.Factory) new OccurrencesBetweenSearchScript.Factory());
+        mappers.put(HasAnyOccurrenceBetweenSearchScript.SCRIPT_NAME, (Processor.Factory) new HasAnyOccurrenceBetweenSearchScript.Factory());
+        return Collections.unmodifiableMap(mappers);
     }
-
+    
 }

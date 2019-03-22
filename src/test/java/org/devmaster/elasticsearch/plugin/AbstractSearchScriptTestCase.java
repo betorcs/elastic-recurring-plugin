@@ -20,25 +20,32 @@ import org.elasticsearch.test.ESIntegTestCase;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_REPLICAS;
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;
 
 @ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 1)
 public class AbstractSearchScriptTestCase extends ESIntegTestCase {
-
+    
     @Override
     public Settings indexSettings() {
         Settings.Builder builder = Settings.builder();
         builder.put(SETTING_NUMBER_OF_SHARDS, 1);
         builder.put(SETTING_NUMBER_OF_REPLICAS, 0);
-
         return builder.build();
+    }
+    
+    @Override
+    protected Collection<Class<? extends Plugin>> nodePlugins() {
+        List<Class<? extends Plugin>> list = new ArrayList<Class<? extends Plugin>>();
+        list.add(RecurringPlugin.class);
+        return Collections.unmodifiableCollection(list);
     }
 
     @Override
-    protected Collection<Class<? extends Plugin>> nodePlugins() {
-        return Collections.singletonList(RecurringPlugin.class);
+    protected Collection<Class<? extends Plugin>> transportClientPlugins() {
+        return nodePlugins();
     }
-
 }

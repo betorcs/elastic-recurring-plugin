@@ -15,6 +15,8 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
+import org.apache.lucene.index.LeafReaderContext;
+import org.elasticsearch.search.lookup.SearchLookup;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -25,19 +27,23 @@ public class NotHasExpiredSearchScript extends AbstractRecurringSearchScript {
     public static final String SCRIPT_NAME = "notHasExpired";
     private static final String PARAM_FIELD = "field";
 
+    public NotHasExpiredSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
+        super(params, lookup, leafContext);
+    }
+
     public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<NotHasExpiredSearchScript> {
         public Factory() {
             super(NotHasExpiredSearchScript.class, Arrays.asList(PARAM_FIELD));
         }
-
-        @Override
-        public String getName() {
-            return SCRIPT_NAME;
+        
+        public String getType() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
-
-    public NotHasExpiredSearchScript(Map<String, String> paramMap) {
-        super(paramMap);
+    
+    @Override
+    public double runAsDouble() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -45,7 +51,9 @@ public class NotHasExpiredSearchScript extends AbstractRecurringSearchScript {
         Recurring recurring = getRecurring(getParamValueFor(PARAM_FIELD));
         try {
             return recurring != null && recurring.notHasExpired();
-        } catch (ParseException ignored) {}
+        } catch (ParseException e) {
+            //throw new IllegalArgumentException("Error while obtaining has occurrences Expired. Error: " + e.getMessage());
+        }
         return false;
     }
 }

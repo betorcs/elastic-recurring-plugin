@@ -15,6 +15,8 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
+import org.apache.lucene.index.LeafReaderContext;
+import org.elasticsearch.search.lookup.SearchLookup;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
@@ -29,19 +31,23 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
     private static final String PARAM_START = "start";
     private static final String PARAM_END = "end";
 
+    public OccurBetweenSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
+        super(params, lookup, leafContext);
+    }
+
+    @Override
+    public double runAsDouble() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<OccurBetweenSearchScript> {
         public Factory() {
             super(OccurBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
         }
-
-        @Override
-        public String getName() {
-            return SCRIPT_NAME;
+        
+        public String getType() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
-    }
-
-    public OccurBetweenSearchScript(Map<String, String> paramMap) {
-        super(paramMap);
     }
 
     @Override
@@ -52,7 +58,7 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
         try {
             return recurring != null && recurring.occurBetween(new LocalDate(start), new LocalDate(end));
         } catch (ParseException e) {
-            throw newScriptException("Error while check occur between.", e, SCRIPT_NAME);
+            throw new IllegalArgumentException("Error while check occur between. Error: " + e.getMessage());
         }
     }
 }

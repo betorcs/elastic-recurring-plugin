@@ -15,6 +15,9 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
+import org.apache.lucene.index.LeafReaderContext;
+import org.elasticsearch.search.lookup.SearchLookup;
+import org.elasticsearch.script.ScriptEngine;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
@@ -28,19 +31,22 @@ public class HasOccurrencesAtSearchScript extends AbstractRecurringSearchScript 
     private static final String PARAM_FIELD = "field";
     private static final String PARAM_DATE = "date";
 
-    protected HasOccurrencesAtSearchScript(Map<String, String> paramMap) {
-        super(paramMap);
+    public HasOccurrencesAtSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
+        super(params, lookup, leafContext);
+    }
+    
+    @Override
+    public double runAsDouble() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<HasOccurrencesAtSearchScript> {
-
         public Factory() {
             super(HasOccurrencesAtSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_DATE));
         }
-
-        @Override
-        public String getName() {
-            return SCRIPT_NAME;
+        
+        public String getType() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 
@@ -51,7 +57,7 @@ public class HasOccurrencesAtSearchScript extends AbstractRecurringSearchScript 
         try {
             return recurring != null && recurring.hasOccurrencesAt(new LocalDate(date));
         } catch (ParseException e) {
-            throw newScriptException("Error while obtaining has occurrences at.", e, SCRIPT_NAME);
+            throw new IllegalArgumentException("Error while obtaining has occurrences at. Error: " + e.getMessage());
         }
     }
 }

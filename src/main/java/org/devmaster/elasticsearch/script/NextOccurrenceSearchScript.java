@@ -20,7 +20,6 @@ import org.elasticsearch.search.lookup.SearchLookup;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class NextOccurrenceSearchScript extends AbstractRecurringSearchScript {
@@ -32,28 +31,6 @@ public class NextOccurrenceSearchScript extends AbstractRecurringSearchScript {
 
     public NextOccurrenceSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
         super(params, lookup, leafContext);
-    }
-    
-    @Override
-    public double runAsDouble() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<NextOccurrenceSearchScript> {
-        public Factory() {
-            super(NextOccurrenceSearchScript.class, buildParams());
-        }
-
-        private static Map<String, Boolean> buildParams() {
-            Map<String, Boolean> map = new HashMap<String, Boolean>();
-            map.put(PARAM_FIELD, true);
-            map.put(PARAM_FROM, false);
-            return map;
-        }
-        
-        public String getType() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
     }
 
     @Override
@@ -72,4 +49,8 @@ public class NextOccurrenceSearchScript extends AbstractRecurringSearchScript {
         return null;
     }
 
+    @Override
+    public double runAsDouble() {
+        return 0;
+    }
 }

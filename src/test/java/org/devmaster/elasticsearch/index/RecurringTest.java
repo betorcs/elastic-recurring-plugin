@@ -1,18 +1,6 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package org.devmaster.elasticsearch.index;
 
-package org.devmaster.elasticsearch.index.mapper;
+import org.devmaster.elasticsearch.index.mapper.Recurring;
 
 import org.joda.time.LocalDate;
 
@@ -26,25 +14,23 @@ import java.text.ParseException;
 import java.util.List;
 
 public class RecurringTest {
-	
-	public void testOccurrencesBetween() throws ParseException {
+
+    public void testOccurrencesBetween() throws ParseException {
         
-        Recurring recurring = recurring("2016-01-01", null, "RRULE:FREQ=WEEKLY;BYDAY=TU,TH;WKST=SU");
+    	Recurring recurring = recurring("2016-01-01", null, "RRULE:FREQ=WEEKLY;BYDAY=TU,TH;WKST=SU");
         LocalDate start = new LocalDate("2016-01-02");
         LocalDate end = new LocalDate("2016-01-20");
         List<String> occurrences = recurring.occurrencesBetween(start, end);
         assertNotNull(occurrences);
         assertEquals(5, occurrences.size());
 
-        Recurring coogeePro = recurring("2018-02-05", null, "RRULE:FREQ=MONTHLY;BYDAY=2WE;WKST=SU");
-        List<String> ocurrences = coogeePro.occurrencesBetween(new LocalDate(2018, 2, 1), new LocalDate(2018, 4, 1));
-        assertEquals(3, ocurrences.size());
-        assertEquals("2018-02-05", ocurrences.get(0));
-        assertEquals("2018-02-14", ocurrences.get(1));
-        assertEquals("2018-03-14", ocurrences.get(2));
+        Recurring coogeePro = recurring("2018-02-21", null, "RRULE:FREQ=MONTHLY;BYDAY=4WE;WKST=SU");
+        List<String> ocurrences = coogeePro.occurrencesBetween(new LocalDate(2018, 2, 16), new LocalDate(2018, 3, 16));
+        assertEquals(2, ocurrences.size());
+        assertEquals("2018-02-21", ocurrences.get(0));
     }
 
-	public void testNotHasExpired() throws Exception {
+    public void testNotHasExpired() throws Exception {
         
         LocalDate today = LocalDate.now();
 
@@ -66,7 +52,7 @@ public class RecurringTest {
         assertFalse(recurring1.notHasExpired());
     }
 
-	public void testNextOccurrence() throws Exception {
+    public void testNextOccurrence() throws Exception {
         
         LocalDate today = LocalDate.now();
 
@@ -93,7 +79,7 @@ public class RecurringTest {
         assertTrue(nextOccur.isEqual(today) || nextOccur.isAfter(today));
     }
 
-	public void testOccurBetweenWithSingleDay() throws Exception {
+    public void testOccurBetweenWithSingleDay() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", null, null);
 		
 		// assertTrue
@@ -107,7 +93,7 @@ public class RecurringTest {
         assertFalse(recurring.occurBetween("2016-11-11", "2016-11-12"));
     }
 
-	public void testOccurBetweenWithRangeOfDay() throws Exception {
+    public void testOccurBetweenWithRangeOfDay() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", "2016-11-11", null);
 
 		// assertTrue
@@ -122,7 +108,7 @@ public class RecurringTest {
         assertFalse(recurring.occurBetween("2016-11-13", "2016-11-16"));
     }
 
-	public void testHasAnyOccurrenceBetween() throws Exception {
+    public void testHasAnyOccurrenceBetween() throws Exception {
         Recurring recurring = new Recurring("2017-06-01", "2017-06-30", null);
 
 		// assertTrue
@@ -141,7 +127,7 @@ public class RecurringTest {
 		assertFalse(recurring.hasAnyOccurrenceBetween("2017-07-01", "2017-07-15"));
     }
 
-	public void testHasAnyOccurrenceBetween_recurrences() throws Exception {
+    public void testHasAnyOccurrenceBetween_recurrences() throws Exception {
         Recurring recurring = new Recurring("2017-06-05", null, "RRULE:FREQ=MONTHLY;BYDAY=MO");
 
         //assertTrue
@@ -156,7 +142,7 @@ public class RecurringTest {
 		assertFalse(recurring.hasAnyOccurrenceBetween("2017-06-20", "2017-06-25"));
     }
 
-	public void testOccurBetweenWithSameDay() throws Exception {
+    public void testOccurBetweenWithSameDay() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", "2016-11-10", null);
 
 		// assertTrue
@@ -170,23 +156,27 @@ public class RecurringTest {
         assertFalse(recurring.occurBetween("2016-11-11", "2016-11-13"));
     }
 
-	public void testOccurBetweenWithRecurrence() throws Exception {
+    public void testOccurBetweenWithRecurrence() throws Exception {
         Recurring recurring = new Recurring("2016-11-10", null, "RRULE:FREQ=DAILY;BYDAY=TH,MO");
+        
+        // assertTrue
 		assertTrue(recurring.occurBetween("2016-11-10", "2016-11-15"));
         assertTrue(recurring.occurBetween("2016-11-11", "2016-11-15"));
         assertTrue(recurring.occurBetween("2016-11-09", "2016-11-10"));
         assertTrue(recurring.occurBetween("2016-11-14", "2016-11-16"));
         assertTrue(recurring.occurBetween("2016-12-05", "2016-12-06"));
+        
+        // assertFalse
         assertFalse(recurring.occurBetween("2016-11-22", "2016-11-23"));
         assertFalse(recurring.occurBetween("2016-11-15", "2016-11-15"));
     }
 
-	public void testOccurBetweenWithEndDateAndStartDateAreTheSame() throws ParseException {
+    public void testOccurBetweenWithEndDateAndStartDateAreTheSame() throws ParseException {
         Recurring recurring = new Recurring("2018-02-28", null, "RRULE:FREQ=WEEKLY;BYDAY=WE");
         assertTrue(recurring.occurBetween("2018-02-28", "2018-02-28"));
     }
 
-	public void textHasOccurrencesAt() throws Exception {
+    public void textHasOccurrencesAt() throws Exception {
         
         // Testing single date
         Recurring singleDate = recurring("2016-11-23", null, null);
@@ -212,13 +202,17 @@ public class RecurringTest {
         assertFalse(recurrence.hasOccurrencesAt(toLocalDate("2016-12-27")));
     }
     
-	public void testHasAnyOccurrenceBetweenWeekly() throws Exception {
+    public void testHasAnyOccurrenceBetweenWeekly() throws Exception {
         Recurring recurring = new Recurring("2018-05-02", "2018-06-07", "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20180607T000000Z;WKST=SU");
+        
+        // assertTrue
 		assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-08", "2018-05-08"));
         assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-15", "2018-05-15"));
         assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-22", "2018-05-22"));
         assertTrue(recurring.hasAnyOccurrenceBetween("2018-05-29", "2018-05-29"));
         assertTrue(recurring.hasAnyOccurrenceBetween("2018-06-05", "2018-06-05"));
+        
+        // assertFalse
         assertFalse(recurring.hasAnyOccurrenceBetween("2018-06-06", "2018-06-06"));
     }
 

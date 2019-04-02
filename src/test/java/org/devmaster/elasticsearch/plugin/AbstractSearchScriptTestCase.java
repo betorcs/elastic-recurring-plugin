@@ -17,35 +17,36 @@ package org.devmaster.elasticsearch.plugin;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.ESIntegTestCase;
+import org.elasticsearch.test.ESIntegTestCase.Scope;
+import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_REPLICAS;
-import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.test.junit.annotations.TestLogging;
+import org.junit.runner.RunWith;
 
-@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 1)
-public class AbstractSearchScriptTestCase extends ESIntegTestCase {
-    
-    @Override
+@TestLogging("_root:DEBUG")
+@ClusterScope(scope = Scope.SUITE, numDataNodes = 1)
+@RunWith(com.carrotsearch.randomizedtesting.RandomizedRunner.class)
+public abstract class AbstractSearchScriptTestCase extends ESIntegTestCase {
+	
+	@Override
+	protected Settings nodeSettings(int nodeOrdinal) {
+		return Settings.builder().put(super.nodeSettings(nodeOrdinal)).build();
+	}
+	
+	@Override
     public Settings indexSettings() {
-        Settings.Builder builder = Settings.builder();
-        builder.put(SETTING_NUMBER_OF_SHARDS, 1);
-        builder.put(SETTING_NUMBER_OF_REPLICAS, 0);
-        return builder.build();
+        return Settings.builder()
+	        .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+	        .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
+	        .build();
     }
     
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
-        List<Class<? extends Plugin>> list = new ArrayList<Class<? extends Plugin>>();
-        list.add(RecurringPlugin.class);
-        return Collections.unmodifiableCollection(list);
-    }
-
-    @Override
-    protected Collection<Class<? extends Plugin>> transportClientPlugins() {
-        return nodePlugins();
+    	return Collections.singletonList(RecurringPlugin.class);
     }
 }

@@ -19,35 +19,17 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Map;
 
 public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearchScript {
 
-    public static final String SCRIPT_NAME = "hasAnyOccurrenceBetween";
-
-    private static final String PARAM_FIELD = "field";
+	private static final String PARAM_FIELD = "field";
     private static final String PARAM_START = "start";
     private static final String PARAM_END = "end";
-
+    
     public HasAnyOccurrenceBetweenSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
-        super(params, lookup, leafContext);
-    }
-
-    @Override
-    public double runAsDouble() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public static class Factory extends AbstractFactory<HasAnyOccurrenceBetweenSearchScript> {
-        public Factory() {
-            super(HasAnyOccurrenceBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
-        }
-        
-        public String getType() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    }
+		super(params, lookup, leafContext);
+	}
 
     @Override
     public Object run() {
@@ -59,5 +41,10 @@ public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearch
         } catch (ParseException e) {
             throw new IllegalArgumentException("Error while obtaining has any occurrence between. Error: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public double runAsDouble() {
+        return 0;
     }
 }

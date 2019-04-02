@@ -1,4 +1,8 @@
 buildscript {
+	ext {
+        elasticsearchVersion = "6.6.1"
+    }
+    
     repositories {
         mavenLocal()
         mavenCentral()
@@ -6,28 +10,107 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.elasticsearch.gradle:build-tools:6.6.1"
+        classpath "org.elasticsearch.gradle:build-tools:$elasticsearchVersion"
     }
 }
 
 group = 'org.devmaster.elasticsearch'
-version = '6.6'
+version = "1.0"
 
+apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'idea'
+apply plugin: 'maven'
+
+ext.projectSubstitutions = [:]
+
+// license of this project
+licenseFile = rootProject.file('LICENSE.txt')
+
+// copyright notices
+noticeFile = rootProject.file('NOTICE.txt')
 
 esplugin {
     name "elastic-recurring-plugin"
     description "Plugin to handle with recurring event using rfc-2445 rules."
     classname "org.devmaster.elasticsearch.plugin.RecurringPlugin"
+	
+	// license of the plugin, may be different than the above license
+    licenseFile rootProject.file('LICENSE.txt')
+    
+    // copyright notices, may be different than the above notice
+    noticeFile rootProject.file('NOTICE.txt')
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
 
 dependencies {
-    compile "org.scala-saddle:google-rfc-2445:20110304"
-    compile "com.google.guava:guava:18.0"
+    // https://mvnrepository.com/artifact/org.scala-saddle/google-rfc-2445
+	compile group: 'org.scala-saddle', name: 'google-rfc-2445', version: '20110304'
+
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+	compile group: 'com.google.guava', name: 'guava', version: '23.0'
+	
+	// https://mvnrepository.com/artifact/junit/junit
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+	
+	// https://mvnrepository.com/artifact/org.apache.lucene/lucene-test-framework
+	testCompile group: 'org.apache.lucene', name: 'lucene-test-framework', version: '7.6.0'
+	
+	// https://mvnrepository.com/artifact/org.elasticsearch.test/framework
+	testCompile group: 'org.elasticsearch.test', name: 'framework', version: "$elasticsearchVersion"
+	
+	// https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client
+	testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: "$elasticsearchVersion"
+
 }
 
+// integTest cluster needs can be enabled
+integTest.enabled = true
+integTestCluster {
+    setting 'cluster.name', 'ESTest'
+    setting 'network.host', 'localhost'
+    setting 'http.port',    '9200'
+}
+
+// check style can be disabled, or you can configure a different checkstyle file
+checkstyleMain.enabled = false
+checkstyleTest.enabled = false
+
+// dependency license check needs can be enabled
 dependencyLicenses.enabled = false
+
+// thirdparty audit needs can be enabled
 thirdPartyAudit.enabled = false
+/*
+thirdPartyAudit.excludes = [
+    // classes are missing
+    'javax.servlet.ServletConfig',
+    'javax.servlet.ServletContext',
+    'javax.servlet.ServletContextEvent',
+    //... Skipped for clarity
+]
+*/
+// license header checks can be disabled
+licenseHeaders.enabled = false
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+sourceSets {
+    main.java.srcDir "java"
+    test.java.srcDir "test"
+}
+
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}

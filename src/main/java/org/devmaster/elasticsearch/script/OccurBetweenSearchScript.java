@@ -20,7 +20,6 @@ import org.elasticsearch.search.lookup.SearchLookup;
 import org.joda.time.LocalDate;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Map;
 
 public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
@@ -36,21 +35,6 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
     }
 
     @Override
-    public double runAsDouble() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    public static class Factory extends AbstractRecurringSearchScript.AbstractFactory<OccurBetweenSearchScript> {
-        public Factory() {
-            super(OccurBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
-        }
-        
-        public String getType() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    }
-
-    @Override
     public Object run() {
         Recurring recurring = getRecurring(getParamValueFor(PARAM_FIELD));
         String start = getParamValueFor(PARAM_START);
@@ -60,5 +44,10 @@ public class OccurBetweenSearchScript extends AbstractRecurringSearchScript {
         } catch (ParseException e) {
             throw new IllegalArgumentException("Error while check occur between. Error: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public double runAsDouble() {
+        return 0;
     }
 }

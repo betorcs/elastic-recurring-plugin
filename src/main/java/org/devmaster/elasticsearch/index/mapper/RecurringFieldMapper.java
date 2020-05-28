@@ -15,14 +15,20 @@
 package org.devmaster.elasticsearch.index.mapper;
 
 import com.google.common.collect.Iterators;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Query;
+import org.devmaster.elasticsearch.Recurring;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.index.mapper.*;
+import org.elasticsearch.index.mapper.DateFieldMapper;
+import org.elasticsearch.index.mapper.FieldMapper;
+import org.elasticsearch.index.mapper.KeywordFieldMapper;
+import org.elasticsearch.index.mapper.MappedFieldType;
+import org.elasticsearch.index.mapper.Mapper;
+import org.elasticsearch.index.mapper.MapperParsingException;
+import org.elasticsearch.index.mapper.ParseContext;
 import org.elasticsearch.index.query.QueryShardContext;
 import org.elasticsearch.index.query.QueryShardException;
 
@@ -40,7 +46,7 @@ public class RecurringFieldMapper extends FieldMapper {
 
     private final DateFieldMapper startDateMapper;
     private final DateFieldMapper endDateMapper;
-    private final TextFieldMapper rruleMapper;
+    private final KeywordFieldMapper rruleMapper;
 
     public static class Defaults {
 
@@ -59,15 +65,16 @@ public class RecurringFieldMapper extends FieldMapper {
 
     public static class RecurringFieldType extends MappedFieldType {
 
-        public RecurringFieldType() {}
+        public RecurringFieldType() {
+        }
 
-        protected RecurringFieldType(RecurringFieldMapper.RecurringFieldType ref) {
+        protected RecurringFieldType(RecurringFieldType ref) {
             super(ref);
         }
 
         @Override
         public MappedFieldType clone() {
-            return new RecurringFieldMapper.RecurringFieldType(this);
+            return new RecurringFieldType(this);
         }
 
         @Override
@@ -80,14 +87,20 @@ public class RecurringFieldMapper extends FieldMapper {
             throw new QueryShardException(context, "Recurring fields are not searchable: [" + name() + "].");
         }
 
-    }
+        @Override
+        public Query existsQuery(QueryShardContext context) {
+            return null;
+        }
 
+    }
 
     public static class Builder extends FieldMapper.Builder<Builder, RecurringFieldMapper> {
 
-        private DateFieldMapper.Builder startDateBuilder = new DateFieldMapper.Builder(FieldNames.START_DATE);
-        private DateFieldMapper.Builder endDateBuilder = new DateFieldMapper.Builder(FieldNames.END_DATE);
-        private TextFieldMapper.Builder rruleBuilder = new TextFieldMapper.Builder(FieldNames.RRULE);
+        private DateFieldMapper.Builder startDateBuilder = new DateFieldMapper.Builder(FieldNames.START_DATE)
+                    .format("yyyy-MM-dd");
+        private DateFieldMapper.Builder endDateBuilder = new DateFieldMapper.Builder(FieldNames.END_DATE)
+                    .format("yyyy-MM-dd");
+        private KeywordFieldMapper.Builder rruleBuilder = new KeywordFieldMapper.Builder(FieldNames.RRULE);
 
         protected Builder(String name) {
             super(name, new RecurringFieldType(), new RecurringFieldType());
@@ -101,7 +114,7 @@ public class RecurringFieldMapper extends FieldMapper {
 
             DateFieldMapper startDateMapper = startDateBuilder.build(context);
             DateFieldMapper endDateMapper = endDateBuilder.build(context);
-            TextFieldMapper rruleMapper = rruleBuilder.build(context);
+            KeywordFieldMapper rruleMapper = rruleBuilder.build(context);
 
             context.path().remove();
 
@@ -133,56 +146,36 @@ public class RecurringFieldMapper extends FieldMapper {
         public Mapper.Builder<?, ?> parse(String name, Map<String, Object> node, ParserContext parserContext)
                 throws MapperParsingException {
 
-            RecurringFieldMapper.Builder builder = new RecurringFieldMapper.Builder(name);
-//            parseField(builder, name, node, parserContext);
-
-//            for (Iterator<Map.Entry<String, Object>> iterator = node.entrySet().iterator(); iterator.hasNext(); ) {
-//                Map.Entry<String, Object> entry = iterator.next();
-//                String fieldName = entry.getKey();
-//                Object fieldNode = entry.getValue();
-//
-//                if (parseMultiField(builder, name, parserContext, fieldName, fieldNode)) {
-//                    iterator.remove();
-//                }
-//            }
-
-
-            return builder;
+            return new RecurringFieldMapper.Builder(name);
         }
     }
 
-
-
-
     protected RecurringFieldMapper(String simpleName, MappedFieldType fieldType, MappedFieldType defaultFieldType,
-                                   Settings indexSettings, DateFieldMapper dtstartMapper,
-                                   DateFieldMapper dtendMapper, TextFieldMapper rruleMapper, MultiFields multiFields,
+                                   Settings indexSettings, DateFieldMapper startDateMapper,
+                                   DateFieldMapper endDateMapper, KeywordFieldMapper rruleMapper, MultiFields multiFields,
                                    CopyTo copyTo) {
         super(simpleName, fieldType, defaultFieldType, indexSettings, multiFields, copyTo);
 
-        this.startDateMapper = dtstartMapper;
-        this.endDateMapper = dtendMapper;
-        for (Mapper mapper : this.rruleMapper = rruleMapper) {
-
-        }
-        ;
+        this.startDateMapper = startDateMapper;
+        this.endDateMapper = endDateMapper;
+        this.rruleMapper = rruleMapper;
     }
 
     @Override
-    protected void parseCreateField(ParseContext parseContext, List<Field> list) throws IOException {
+    protected void parseCreateField(ParseContext context, List<IndexableField> fields) throws IOException {
         throw new UnsupportedOperationException("Parsing is implemented in parse(), this method should NEVER be called");
     }
 
     @Override
-    public Mapper parse(ParseContext context) throws IOException {
-//        ContentPath.Type origPathType = context.path().pathType();
-//        context.path().pathType(pathType);
-//        context.path().add(simpleName());
+    public void parse(ParseContext context) throws IOException {
+
+        context.path().add(name());
 
         XContentParser parser = context.parser();
 
         Recurring recurring = new Recurring();
         Map<String, Object> map = parser.map();
+
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (FieldNames.START_DATE.equals(entry.getKey())) {
                 recurring.setStartDate((String) entry.getValue());
@@ -193,10 +186,10 @@ public class RecurringFieldMapper extends FieldMapper {
             }
         }
 
-        startDateMapper.parse(context.createExternalValueContext(recurring.getStartDate()));
+        startDateMapper.parse(context.createExternalValueContext(recurring.getStart()));
 
-        if (null != recurring.getEndDate()) {
-            endDateMapper.parse(context.createExternalValueContext(recurring.getEndDate()));
+        if (null != recurring.getEnd()) {
+            endDateMapper.parse(context.createExternalValueContext(recurring.getEnd()));
         }
 
         if (null != recurring.getRrule()) {
@@ -206,8 +199,6 @@ public class RecurringFieldMapper extends FieldMapper {
         multiFields.parse(this, context.createExternalValueContext(recurring));
 
         context.path().remove();
-//        context.path().pathType(origPathType);
-        return null;
     }
 
     @Override
@@ -216,28 +207,14 @@ public class RecurringFieldMapper extends FieldMapper {
     }
 
     @Override
-    public RecurringFieldMapper.RecurringFieldType fieldType() {
+    public RecurringFieldType fieldType() {
         return (RecurringFieldType) super.fieldType();
     }
 
     @Override
     public Iterator<Mapper> iterator() {
-        List<? extends Mapper> extras = Arrays.asList(
-                startDateMapper,
-                endDateMapper,
-                rruleMapper);
+        List<? extends Mapper> extras = Arrays.asList(startDateMapper, endDateMapper, rruleMapper);
         return Iterators.concat(super.iterator(), extras.iterator());
     }
 
-    @Override
-    public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
-        builder.startObject(simpleName());
-        builder.field("type", CONTENT_TYPE);
-        startDateMapper.toXContent(builder, params);
-        endDateMapper.toXContent(builder, params);
-        rruleMapper.toXContent(builder, params);
-        multiFields.toXContent(builder, params);
-        builder.endObject();
-        return super.toXContent(builder, params);
-    }
 }

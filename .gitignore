@@ -7,3 +7,4 @@
 *.iml
 .vscode/
 /build
+.gradle/

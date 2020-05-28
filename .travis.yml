@@ -1,9 +1,8 @@
 language: java
 
-sudo: required
-
 jdk:
-  - oraclejdk8
+  - openjdk14
+
 notifications:
   email:
     recipients:
@@ -11,8 +10,14 @@ notifications:
     on_success: never # default: change
     on_failure: always # default: always
 
-install: true
-
 script:
-  - sudo apt-get update && sudo apt-get install oracle-java8-installer
-  - ./gradlew clean test
+  - ./gradlew clean build test -Pversion=$TRAVIS_TAG -x check
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file:
+    - ./build/distributions/elastic-recurring-plugin-$TRAVIS_TAG.zip
+  skip_cleanup: true
+  on:
+    tags: true

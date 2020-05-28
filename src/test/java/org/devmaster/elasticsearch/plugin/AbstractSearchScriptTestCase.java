@@ -25,7 +25,7 @@ import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;
 
 @ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 1)
-public class AbstractSearchScriptTestCase extends ESIntegTestCase {
+public abstract class AbstractSearchScriptTestCase extends ESIntegTestCase {
 
     @Override
     public Settings indexSettings() {

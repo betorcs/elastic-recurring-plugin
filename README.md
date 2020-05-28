@@ -5,7 +5,7 @@ This plugin adds a new type named *recurring* and the native scripts: *nextOccur
 
 It was tested in ES 2.3.5, 2.4.1 and 5.0.0
 
-[![Build Status](https://travis-ci.org/betorcs/elastic-recurring-plugin.svg?branch=5.0)](https://travis-ci.org/betorcs/elastic-recurring-plugin)
+[![Build Status](https://travis-ci.org/betorcs/elastic-recurring-plugin.svg?branch=7.7)](https://travis-ci.org/betorcs/elastic-recurring-plugin)
 
 ## Getting start
 

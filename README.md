@@ -18,7 +18,7 @@ Generating zip file, execute command bellow, the file will be created in folder 
 To installing plugin in elasticsearch, run this command in your elasticsearch server.
 
 ```bash
-./bin/elasticsearch-plugin install https://github.com/betorcs/elastic-recurring-plugin/archive/elastic-recurring-plugin-7.7.zip
+./bin/elasticsearch-plugin install https://github.com/betorcs/elastic-recurring-plugin/releases/download/7.7/elastic-recurring-plugin-7.7.zip
 ```
 
 ## Recurring Type

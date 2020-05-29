@@ -3,9 +3,7 @@
 Allow to work in ES with some features of recurrent dates defined in [rfc2445](https://www.ietf.org/rfc/rfc2445.txt). 
 This plugin adds a new type named *recurring* and the native scripts: *nextOccurrence*, *hasOccurrencesAt*, *occurBetween* and *notHasExpired*.
 
-It was tested in ES 2.3.5 and 2.4.1.
-
-[![Build Status](https://travis-ci.org/betorcs/elastic-recurring-plugin.svg?branch=master)](https://travis-ci.org/betorcs/elastic-recurring-plugin)
+[![Build Status](https://travis-ci.org/betorcs/elastic-recurring-plugin.svg?branch=7.7)](https://travis-ci.org/betorcs/elastic-recurring-plugin)
 
 ## Getting start
 
@@ -13,33 +11,42 @@ It was tested in ES 2.3.5 and 2.4.1.
  
 Generating zip file, execute command bellow, the file will be created in folder `target\releases`.
 
-```$mvn clean package```
+```bash
+./gradlew clean build -x test
+```
 
 To installing plugin in elasticsearch, run this command in your elasticsearch server.
 
-```$bin/plugin install recurring-plugin-0.1.zip```
+```bash
+./bin/elasticsearch-plugin install file:///the/plugin/path/recurring-plugin-0.1.zip
+```
 
 ## Recurring Type
 Mapper type called _recurring_ to support recurrents dates. The declaration looks as follows:
-```
+```json
 {
-    "event" : {
-        "properties" : {
-            "recurrent_date" : {
-                "type" : "recurring"
-            }
+    "properties": {
+        "name": {
+            "type": "text"
+        },
+        "recurrent_date": {
+            "type": "recurring"
         }
     }
 }
 ```
 The above mapping defines a _recurring_, which accepts the follow format:
-```
+```json
 {
-    "event" : {
-        "recurrent_date" : {
-            "start_date" : "2016-12-25",
-            "end_date" : null,
-            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25"
+    "_index": "sample",
+    "_type": "_doc",
+    "_id": "1",
+    "_score": 1.0,
+    "_source": {
+        "name": "Christmas",
+        "recurrent_date": {
+            "start_date": "2015-12-25",
+            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25;WKST=SU"
         }
     }
 }
@@ -84,26 +91,28 @@ Script field returns `true` if event is not expired considering server date.
 
 ## Adding a mapping
 
-PUT `sample/event/_mapping`
-```
+```http request
+PUT localhost:9200/sample/_mapping
+Content-Type: application/json
+
 {
-  "event": {
     "properties": {
-      "name": {
-        "type": "string"
-      },
-      "recurrent_date": {
-        "type": "recurring"
-      }
+        "name": {
+            "type": "text"
+        },
+        "recurrent_date": {
+            "type": "recurring"
+        }
     }
-  }
 }
 ```
 
 ## Adding data
 
-PUT `sample/event/1`
-```
+```http request
+PUT localhost:9200/sample/_doc/1
+Content-Type: application/json
+
 {
   "name": "Christmas",
   "recurrent_date": {
@@ -113,8 +122,10 @@ PUT `sample/event/1`
 }
 ```
 
-PUT `sample/event/2`
-```
+```http request
+PUT localhost:9200/sample/_doc/2
+Content-Type: application/json
+
 {
   "name": "Mother's day",
   "recurrent_date": {
@@ -124,8 +135,10 @@ PUT `sample/event/2`
 }
 ```
 
-PUT `sample/event/3`
-```
+```http request
+PUT localhost:9200/sample/_doc/3
+Content-Type: application/json
+
 {
   "name": "Halloween",
   "recurrent_date": {
@@ -135,8 +148,10 @@ PUT `sample/event/3`
 }
 ```
 
-PUT `sample/event/4`
-```
+```http request
+PUT localhost:9200/sample/_doc/4
+Content-Type: application/json
+
 {
   "name": "5 maintenance monthly of cruze ",
   "recurrent_date": {
@@ -144,70 +159,76 @@ PUT `sample/event/4`
     "rrule": "RRULE:FREQ=MONTHLY;BYMONTHDAY=10;COUNT=5;WKST=SU"
   }
 }
-```
+``` 
+
 
 ## Using scripts
 
 ### nextOccurrence
 
-POST `sample/event/_search`
-```
+```http request
+POST localhost:9200/sample/_search
+Content-Type: application/json
+
 {
-  "fields": {
-    "fields": [
-      "name"
-    ],
+    "_source": ["name"],
     "script_fields": {
-      "nextOccur": {
-        "script": "nextOccurrence",
-        "lang": "native",
-        "params": {
-          "field": "recurrent_date"
+        "nextOccur": {
+            "script": {
+                "source": "nextOccurrence",
+                "lang": "recurring_scripts",
+                "params": {
+                    "field": "recurrent_date"
+                }   
+            }
         }
-      }
     }
-  }
 }
 ```
+
 RESPONSE
-```
+```json
 {
-  "took": 9,
+  "took": 8,
   "timed_out": false,
   "_shards": {
     "total": 1,
     "successful": 1,
+    "skipped": 0,
     "failed": 0
   },
   "hits": {
-    "total": 4,
-    "max_score": 1,
+    "total": {
+      "value": 4,
+      "relation": "eq"
+    },
+    "max_score": 1.0,
     "hits": [
       {
         "_index": "sample",
-        "_type": "event",
-        "_id": "3",
-        "_score": 1,
+        "_type": "_doc",
+        "_id": "1",
+        "_score": 1.0,
+        "_source": {
+          "name": "Christmas"
+        },
         "fields": {
-          "name": [
-            "Halloween"
-          ],
           "nextOccur": [
-            "2017-10-31"
+            "2020-12-25"
           ]
         }
       },
       {
         "_index": "sample",
-        "_type": "event",
+        "_type": "_doc",
         "_id": "2",
-        "_score": 1,
+        "_score": 1.0,
+        "_source": {
+          "name": "Mother's day"
+        },
         "fields": {
-          "name": [
-            "Mother's day"
-          ],
           "nextOccur": [
-            "2017-05-14"
+            "2021-05-09"
           ]
         }
       },
@@ -219,44 +240,53 @@ RESPONSE
 
 ### hasOccurrencesAt
 
-POST `sample/event/_search`
-```
+```http request
+POST localhost:9200/sample/_search
+Content-Type: application/json
+
 {
-  "query": {
-    "bool": {
-      "filter": {
-        "script": {
-          "script": "hasOccurrencesAt",
-          "lang": "native",
-          "params": {
-            "field": "recurrent_date",
-            "date": "2019-05-12"
-          }
+    "query": {
+        "bool": {
+            "filter": {
+                "script": {
+                    "script": {
+                        "source": "hasOccurrencesAt",
+                        "lang": "recurring_scripts",
+                        "params": {
+                            "field": "recurrent_date",
+                            "date": "2019-05-12"
+                        }   
+                    }
+                }
+            }            
         }
-      }
     }
-  }
 }
-``` 
-RESPONSE
 ```
+ 
+RESPONSE
+```json
 {
-  "took": 8,
+  "took": 21,
   "timed_out": false,
   "_shards": {
     "total": 1,
     "successful": 1,
+    "skipped": 0,
     "failed": 0
   },
   "hits": {
-    "total": 1,
-    "max_score": 0,
+    "total": {
+      "value": 1,
+      "relation": "eq"
+    },
+    "max_score": 0.0,
     "hits": [
       {
         "_index": "sample",
-        "_type": "event",
+        "_type": "_doc",
         "_id": "2",
-        "_score": 0,
+        "_score": 0.0,
         "_source": {
           "name": "Mother's day",
           "recurrent_date": {
@@ -273,45 +303,53 @@ RESPONSE
 
 ### occurBetween
 
-POST `sample/event/_search`
-```
+```http request
+POST localhost:9200/sample/_search
+Content-Type: application/json
+
 {
-  "query": {
-    "bool": {
-      "filter": {
-        "script": {
-          "script": "occurBetween",
-          "lang": "native",
-          "params": {
-            "field": "recurrent_date",
-            "start": "2016-01-31",
-            "end": "2016-07-26"
-          }
+    "query": {
+        "bool": {
+            "filter": {
+                "script": {
+                    "script": {
+                        "source": "occurBetween",
+                        "lang": "recurring_scripts",
+                        "params": {
+                            "field": "recurrent_date",
+                            "start": "2016-01-31",
+                            "end": "2016-07-26"
+                        }
+                    }
+                }
+            }            
         }
-      }
     }
-  }
 }
 ``` 
 RESPONSE
-```
+```json
 {
-  "took": 8,
+  "took": 11,
   "timed_out": false,
   "_shards": {
     "total": 1,
     "successful": 1,
+    "skipped": 0,
     "failed": 0
   },
   "hits": {
-    "total": 2,
-    "max_score": 0,
+    "total": {
+      "value": 2,
+      "relation": "eq"
+    },
+    "max_score": 0.0,
     "hits": [
       {
         "_index": "sample",
-        "_type": "event",
+        "_type": "_doc",
         "_id": "2",
-        "_score": 0,
+        "_score": 0.0,
         "_source": {
           "name": "Mother's day",
           "recurrent_date": {
@@ -322,9 +360,9 @@ RESPONSE
       },
       {
         "_index": "sample",
-        "_type": "event",
+        "_type": "_doc",
         "_id": "4",
-        "_score": 0,
+        "_score": 0.0,
         "_source": {
           "name": "5 maintenance monthly of cruze ",
           "recurrent_date": {
@@ -340,56 +378,65 @@ RESPONSE
 
 ### notHasExpired
 
-POST `sample/event/_search`
-```
+```http request
+POST localhost:9200/sample/_search
+Content-Type: application/json
+
 {
-  "query": {
-    "bool": {
-      "filter": {
-        "script": {
-          "script": "notHasExpired",
-          "lang": "native",
-          "params": {
-            "field": "recurrent_date"
-          }
+    "query": {
+        "bool": {
+            "filter": {
+                "script": {
+                    "script": {
+                        "source": "notHasExpired",
+                        "lang": "recurring_scripts",
+                        "params": {
+                            "field": "recurrent_date"
+                        }
+                    }
+                }
+            }            
         }
-      }
     }
-  }
 }
-``` 
-RESPONSE
 ```
+ 
+RESPONSE
+```json
 {
-  "took": 9,
+  "took": 14,
   "timed_out": false,
   "_shards": {
     "total": 1,
     "successful": 1,
+    "skipped": 0,
     "failed": 0
   },
   "hits": {
-    "total": 3,
-    "max_score": 0,
+    "total": {
+      "value": 3,
+      "relation": "eq"
+    },
+    "max_score": 0.0,
     "hits": [
       {
         "_index": "sample",
-        "_type": "event",
-        "_id": "3",
-        "_score": 0,
+        "_type": "_doc",
+        "_id": "1",
+        "_score": 0.0,
         "_source": {
-          "name": "Halloween",
+          "name": "Christmas",
           "recurrent_date": {
-            "start_date": "2012-10-31",
-            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31;WKST=SU"
+            "start_date": "2015-12-25",
+            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25;WKST=SU"
           }
         }
       },
       {
         "_index": "sample",
-        "_type": "event",
+        "_type": "_doc",
         "_id": "2",
-        "_score": 0,
+        "_score": 0.0,
         "_source": {
           "name": "Mother's day",
           "recurrent_date": {
@@ -400,19 +447,18 @@ RESPONSE
       },
       {
         "_index": "sample",
-        "_type": "event",
-        "_id": "1",
-        "_score": 0,
+        "_type": "_doc",
+        "_id": "3",
+        "_score": 0.0,
         "_source": {
-          "name": "Christmas",
+          "name": "Halloween",
           "recurrent_date": {
-            "start_date": "2015-12-25",
-            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25;WKST=SU"
+            "start_date": "2012-10-31",
+            "rrule": "RRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=31;WKST=SU"
           }
         }
       }
     ]
   }
 }
-
 ```

@@ -1,9 +1,23 @@
 language: java
+
 jdk:
-  - oraclejdk8
+  - openjdk14
+
 notifications:
   email:
     recipients:
       - betorcs@gmail.com
     on_success: never # default: change
     on_failure: always # default: always
+
+script:
+  - ./gradlew clean build test -Pversion=$TRAVIS_TAG -x check
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file:
+    - ./build/distributions/elastic-recurring-plugin-$TRAVIS_TAG.zip
+  skip_cleanup: true
+  on:
+    tags: true

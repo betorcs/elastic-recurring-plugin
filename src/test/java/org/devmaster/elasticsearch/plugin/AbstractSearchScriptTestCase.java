@@ -19,23 +19,26 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.ESIntegTestCase;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_REPLICAS;
 import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;
 
 @ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 1)
-public class AbstractSearchScriptTestCase extends ESIntegTestCase {
+public abstract class AbstractSearchScriptTestCase extends ESIntegTestCase {
 
     @Override
     public Settings indexSettings() {
         Settings.Builder builder = Settings.builder();
         builder.put(SETTING_NUMBER_OF_SHARDS, 1);
         builder.put(SETTING_NUMBER_OF_REPLICAS, 0);
+
         return builder.build();
     }
 
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
-        return pluginList(RecurringPlugin.class);
+        return Collections.singletonList(RecurringPlugin.class);
     }
+
 }

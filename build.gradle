@@ -7,6 +7,7 @@ buildscript {
 
     dependencies {
         classpath "org.elasticsearch.gradle:build-tools:7.7.0"
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
 
@@ -15,6 +16,7 @@ group = 'org.devmaster.elasticsearch'
 apply plugin: 'java'
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'idea'
+apply plugin: "com.github.johnrengelman.shadow"
 
 esplugin {
     name project.name
@@ -31,6 +33,14 @@ dependencies {
         exclude group: "joda-time"
     }
     implementation "com.google.guava:guava:18.0"
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency {
+            it.moduleGroup != 'com.google.guava' && it.moduleGroup != 'org.scala-saddle'
+        })
+    }
 }
 
 dependencyLicenses.enabled = false

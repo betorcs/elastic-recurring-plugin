@@ -17,7 +17,9 @@ package org.devmaster.elasticsearch.index.mapper;
 import com.google.ical.compat.jodatime.LocalDateIterator;
 import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 import org.elasticsearch.common.Strings;
-import org.joda.time.*;
+import org.joda.time.LocalDate;
+import org.joda.time.Instant;
+import org.joda.time.Interval;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public final class Recurring {
     private String rrule;
 
     public Recurring() {
+        //
     }
 
     public Recurring(String startDate, String endDate, String rrule) {
@@ -45,9 +48,10 @@ public final class Recurring {
     }
 
     void setStartDate(String startDate) {
-        if (Strings.isNullOrEmpty(startDate))
+        if (Strings.isNullOrEmpty(startDate)) {
             throw new IllegalArgumentException("Parameter startDate can not be null or empty");
-
+        }
+        
         this.startDate = startDate;
     }
 
@@ -82,17 +86,17 @@ public final class Recurring {
         }
     }
 
-    boolean occurBetween(String start, String end) throws ParseException {
+    public boolean occurBetween(String start, String end) throws ParseException {
         return occurBetween(new LocalDate(start), new LocalDate(end));
     }
 
     public boolean occurBetween(final LocalDate start, final LocalDate end) throws ParseException {
-        LocalDate startDate = new LocalDate(this.startDate);
-        LocalDate endDate = this.endDate != null ? new LocalDate(this.endDate) : null;
+        LocalDate start_date = new LocalDate(this.startDate);
+        LocalDate end_date = this.endDate != null ? new LocalDate(this.endDate) : null;
 
         if (rrule != null) {
 
-            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, startDate, false);
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, start_date, false);
             it.advanceTo(start);
 
             if (it.hasNext()) {
@@ -102,14 +106,11 @@ public final class Recurring {
                 return false;
             }
 
-        } else if (endDate != null && endDate.isAfter(startDate)) {
-
-            return isBetween(startDate, start, end)
-                    || isBetween(endDate, start, end);
-
+        } else if (end_date != null && end_date.isAfter(start_date)) {
+            return isBetween(start_date, start, end) || isBetween(end_date, start, end);
         }
 
-        return !startDate.isBefore(start) && !startDate.isAfter(end);
+        return !start_date.isBefore(start) && !start_date.isAfter(end);
     }
 
     private boolean isBetween(LocalDate date, LocalDate start, LocalDate end) {
@@ -139,7 +140,8 @@ public final class Recurring {
 
     public List<String> occurrencesBetween(LocalDate start, LocalDate end) throws ParseException {
         final LocalDate date = new LocalDate(this.startDate);
-        List<String> dates = new ArrayList<>();
+        List<String> dates = new ArrayList<String>();
+        
         if (this.rrule != null) {
             LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, date, true);
             it.advanceTo(start);
@@ -163,15 +165,15 @@ public final class Recurring {
 
     public boolean hasAnyOccurrenceBetween(String start, String end) throws ParseException {
         Interval lookingAtInterval = new Interval(Instant.parse(start), Instant.parse(end));
-        Instant startDate = Instant.parse(getStartDate());
+        Instant start_date = Instant.parse(getStartDate());
         if (rrule == null) {
-            Interval interval = new Interval(startDate, Instant.parse(getEndDate()));
+            Interval interval = new Interval(start_date, Instant.parse(getEndDate()));
             return interval.abuts(lookingAtInterval) || interval.overlaps(lookingAtInterval);
         } else {
-            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(startDate), false);
+            LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(start_date), false);
             it.advanceTo(lookingAtInterval.getStart().toLocalDate());
             if (it.hasNext()) {
-                for (LocalDate current = it.next(); it.hasNext() && !current.isAfter(lookingAtInterval.getEnd().toLocalDate()); current = it.next()) {
+                for (LocalDate current = it.next(); !current.isAfter(lookingAtInterval.getEnd().toLocalDate()); current = it.next()) {
                     if (lookingAtInterval.abuts(current.toInterval()) || lookingAtInterval.contains(current.toInterval())) {
                         return true;
                     }

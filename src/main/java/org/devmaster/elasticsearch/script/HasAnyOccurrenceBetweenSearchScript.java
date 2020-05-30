@@ -15,36 +15,21 @@
 package org.devmaster.elasticsearch.script;
 
 import org.devmaster.elasticsearch.index.mapper.Recurring;
-import org.elasticsearch.script.ScriptException;
-import org.joda.time.LocalDate;
+import org.apache.lucene.index.LeafReaderContext;
+import org.elasticsearch.search.lookup.SearchLookup;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Map;
 
 public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearchScript {
 
-    public static final String SCRIPT_NAME = "hasAnyOccurrenceBetween";
-
-    private static final String PARAM_FIELD = "field";
+	private static final String PARAM_FIELD = "field";
     private static final String PARAM_START = "start";
     private static final String PARAM_END = "end";
-
-    protected HasAnyOccurrenceBetweenSearchScript(Map<String, String> paramMap) {
-        super(paramMap);
-    }
-
-    public static class Factory extends AbstractFactory<HasAnyOccurrenceBetweenSearchScript> {
-
-        public Factory() {
-            super(HasAnyOccurrenceBetweenSearchScript.class, Arrays.asList(PARAM_FIELD, PARAM_START, PARAM_END));
-        }
-
-        @Override
-        public String getName() {
-            return SCRIPT_NAME;
-        }
-    }
+    
+    public HasAnyOccurrenceBetweenSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
+		super(params, lookup, leafContext);
+	}
 
     @Override
     public Object run() {
@@ -54,7 +39,12 @@ public class HasAnyOccurrenceBetweenSearchScript extends AbstractRecurringSearch
         try {
             return recurring != null && recurring.hasAnyOccurrenceBetween(startDate, endDate);
         } catch (ParseException e) {
-            throw newScriptException("Error while obtaining has any occurrence between.", e, SCRIPT_NAME);
+            throw new IllegalArgumentException("Error while obtaining has any occurrence between. Error: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public double runAsDouble() {
+        return 0;
     }
 }

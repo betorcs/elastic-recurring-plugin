@@ -14,96 +14,39 @@
 
 package org.devmaster.elasticsearch.script;
 
+import org.apache.lucene.index.LeafReaderContext;
 import org.devmaster.elasticsearch.index.mapper.Recurring;
 import org.devmaster.elasticsearch.index.mapper.RecurringFieldMapper;
-import org.elasticsearch.common.Nullable;
-import org.elasticsearch.common.xcontent.support.XContentMapValues;
-import org.elasticsearch.script.AbstractSearchScript;
-import org.elasticsearch.script.NativeScriptFactory;
-import org.elasticsearch.script.ScriptException;
+import org.elasticsearch.script.SearchScript;
+import org.elasticsearch.search.lookup.SearchLookup;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-abstract class AbstractRecurringSearchScript extends AbstractSearchScript {
+abstract class AbstractRecurringSearchScript extends SearchScript {
 
-    static abstract class AbstractFactory<T extends AbstractRecurringSearchScript> implements NativeScriptFactory {
-
-        private final Map<String, Boolean> wantedFields;
-        private final Class<T> cls;
-
-        private static Map<String, Boolean> buildMap(List<String> items) {
-            Map<String, Boolean> map = new HashMap<>();
-            for (String item : items) {
-                map.put(item, true);
-            }
-            return map;
-        }
-
-        AbstractFactory(Class<T> cls, List<String> wantedFields) {
-            this(cls, buildMap(wantedFields));
-        }
-
-        AbstractFactory(Class<T> cls, Map<String, Boolean> wantedFields) {
-            this.wantedFields = wantedFields;
-            this.cls = cls;
-        }
-
-        @Override
-        public T newScript(@Nullable Map<String, Object> params) {
-            Map<String, String> paramMap = new HashMap<>();
-            for (Map.Entry<String, Boolean> paramEntry : wantedFields.entrySet()) {
-                String paramValue = params == null ? null : XContentMapValues.nodeStringValue(params.get(paramEntry.getKey()), null);
-                if (paramEntry.getValue() && paramValue == null) {
-                    throw new ScriptException("Missing the [" + paramEntry + "] parameter",
-                            new IllegalArgumentException(),
-                            Collections.singletonList(""),
-                            getName(), "native");
-                }
-                paramMap.put(paramEntry.getKey(), paramValue);
-            }
-
-            try {
-                return cls.getDeclaredConstructor(Map.class).newInstance(paramMap);
-            } catch (Exception e) {
-                throw newScriptException("Error while loading script class: " + cls.getName(), e, getName());
-            }
-        }
-
-        @Override
-        public boolean needsScores() {
-            return false;
-        }
-    }
-
-    private final Map<String, String> paramMap;
-
-    AbstractRecurringSearchScript(Map<String, String> paramMap) {
-        this.paramMap = paramMap;
-    }
-
-
+	private final Map<String, Object> params;
+	
+	AbstractRecurringSearchScript(Map<String, Object> params, SearchLookup lookup, LeafReaderContext leafContext) {
+		super(params, lookup, leafContext);
+		this.params = params;
+	}
+	
     @SuppressWarnings("unchecked")
-    protected Recurring getRecurring(String fieldName) {
-        if (source().containsKey(fieldName)) {
-            Map<String, Object> map = (Map<String, Object>) source().get(fieldName);
+	protected Recurring getRecurring(String fieldName) {
+        if (params.containsKey(fieldName)) {
+            Map<String, Object> map = (Map<String, Object>) params.get(fieldName);
 
             String rrule = (String) map.get(RecurringFieldMapper.FieldNames.RRULE);
             String startDate = (String) map.get(RecurringFieldMapper.FieldNames.START_DATE);
             String endDate = (String) map.get(RecurringFieldMapper.FieldNames.END_DATE);
+            
             return new Recurring(startDate, endDate, rrule);
         }
         return null;
     }
 
     protected String getParamValueFor(String paramName) {
-        return paramMap.get(paramName);
+        return (String) params.get(paramName);
     }
-
-    static ScriptException newScriptException(String message, Throwable throwable, String name) {
-        return new ScriptException(message, throwable, Collections.emptyList(), name, "native");
-    }
-
+	
 }

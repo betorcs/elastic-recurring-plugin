@@ -1,7 +1,4 @@
 buildscript {
-	ext {
-        elasticsearchVersion = "6.6.1"
-    }
     
     repositories {
         mavenLocal()
@@ -10,12 +7,12 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.elasticsearch.gradle:build-tools:$elasticsearchVersion"
+        classpath "org.elasticsearch.gradle:build-tools:6.0.0"
     }
 }
 
 group = 'org.devmaster.elasticsearch'
-version = "1.0"
+version = '6.0'
 
 apply plugin: 'eclipse'
 apply plugin: 'java'
@@ -31,14 +28,17 @@ licenseFile = rootProject.file('LICENSE.txt')
 // copyright notices
 noticeFile = rootProject.file('NOTICE.txt')
 
+// license of this project
+licenseFile = rootProject.file('LICENSE.txt')
+// copyright notices
+noticeFile = rootProject.file('NOTICE.txt')
+
 esplugin {
     name "elastic-recurring-plugin"
     description "Plugin to handle with recurring event using rfc-2445 rules."
     classname "org.devmaster.elasticsearch.plugin.RecurringPlugin"
-	
-	// license of the plugin, may be different than the above license
+    // license of the plugin, may be different than the above license
     licenseFile rootProject.file('LICENSE.txt')
-    
     // copyright notices, may be different than the above notice
     noticeFile rootProject.file('NOTICE.txt')
 }

@@ -171,7 +171,7 @@ public final class Recurring {
             LocalDateIterator it = LocalDateIteratorFactory.createLocalDateIterator(rrule, new LocalDate(startDate), false);
             it.advanceTo(lookingAtInterval.getStart().toLocalDate());
             if (it.hasNext()) {
-                for (LocalDate current = it.next(); it.hasNext() && !current.isAfter(lookingAtInterval.getEnd().toLocalDate()); current = it.next()) {
+                for (LocalDate current = it.next(); !current.isAfter(lookingAtInterval.getEnd().toLocalDate()); current = it.next()) {
                     if (lookingAtInterval.abuts(current.toInterval()) || lookingAtInterval.contains(current.toInterval())) {
                         return true;
                     }
